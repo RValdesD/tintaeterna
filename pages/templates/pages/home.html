@@ -1,0 +1,82 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TintaEterna</title>
+
+    <link rel="stylesheet" href="{% static 'pages/styles.css' %}">
+    <script src="{% static 'pages/home.js' %}" defer></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <h1 class="site-title">TintaEterna</h1>
+            <div class="header-actions">
+                <form id="search-form" role="search">
+                    <input
+                        id="story-search"
+                        type="search"
+                        placeholder="Busqueda por autor / obra"
+                        aria-label="Busqueda autor / obra"
+                    >
+                    <button type="submit">Buscar</button>
+                </form>
+
+                <nav aria-label="Account">
+                    <button type="button">Ingresar</button>
+                    <button type="button" class="signup">Crear Cuenta</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+<main class="homepage">
+    <div class="stories">
+        {% for section in sections %}
+            <section class="story-section">
+                <h2>{{ section.title }}</h2>
+
+                <div class="story-grid">
+                    {% for story in section.stories %}
+                        <article
+                            class="story-card"
+                            data-search="{{ story.title }} {{ story.author }}"
+                            aria-label="{{ story.title }}"
+                        >
+                            <div class="cover" aria-hidden="true"></div>
+
+                            <p class="author">{{ story.author }}</p>
+
+                            <p
+                                class="rating"
+                                aria-label="{{ story.rating }} out of 5 stars"
+                            >
+                                <span aria-hidden="true">★</span>
+                                {{ story.rating }}
+                                <span class="rating-total">/ 5</span>
+                            </p>
+                        </article>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+
+        <p id="no-results" role="status" hidden>No se encontro la obra solicitada.</p>
+    </div>
+
+    <aside class="upload-column" aria-label="Publishing">
+        <a class="upload-button" href="{% url 'pages:upload' %}">
+            Subir Escrito
+        </a>
+
+        <section class="upload-area" aria-label="Drag-and-drop area"></section>
+    </aside>
+
+</main>
+
+</body>
+</html>
