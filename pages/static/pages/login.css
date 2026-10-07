@@ -60,11 +60,6 @@ button:hover {
     background: #9248c4;
 }
 
-:focus-visible {
-    outline: 3px solid #7952a8;
-    outline-offset: 4px;
-}
-
 .errors {
     margin-top: 8px;
     color: #a11432;

@@ -1,0 +1,59 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inicia sesión | TintaEterna</title>
+
+    <link rel="stylesheet" href="{% static 'pages/login.css' %}">
+</head>
+
+<body>
+    <main class="login-page">
+        <h1>Inicia sesión</h1>
+
+        <form method="post" action="{% url 'pages:login' %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="errors" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="field">
+                <label class="visually-hidden" for="{{ form.email.id_for_label }}">
+                    {{ form.email.label }}
+                </label>
+
+                {{ form.email }}
+
+                {% if form.email.errors %}
+                    <div class="errors" role="alert">
+                        {{ form.email.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="field">
+                <label class="visually-hidden" for="{{ form.password.id_for_label }}">
+                    {{ form.password.label }}
+                </label>
+
+                {{ form.password }}
+
+                {% if form.password.errors %}
+                    <div class="errors" role="alert">
+                        {{ form.password.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit">INGRESAR</button>
+        </form>
+    </main>
+</body>
+</html>
