@@ -1,35 +1,3 @@
-:root {
-    --black: #000000;
-    --gold: #f2b544;
-    --purple: #7952a8;
-    --white: #faf7fc;
-    --pink: #efa8c4;
-}
-
-:root {
-    color-scheme: dark;
-
-    --page-background: var(--black);
-    --page-text: var(--white);
-    --accent: var(--gold);
-    --secondary-text: var(--pink);
-    --outline: var(--white);
-    --input-placeholder: #ffffff9c;
-    --upload-hover: #211b10;
-}
-
-:root[data-theme="light"] {
-    color-scheme: light;
-
-    --page-background: var(--white);
-    --page-text: #171219;
-    --accent: #805600;
-    --secondary-text: #94375f;
-    --outline: #171219;
-    --input-placeholder: #665d6b;
-    --upload-hover: #f9ecd2;
-}
-
 * {
     box-sizing: border-box;
 }
@@ -75,15 +43,9 @@ button:hover,
     cursor: pointer;
 }
 
-/* Apply on every screen size, not just mobile. */
 .login-link {
     display: inline-block;
     text-decoration: none;
-}
-
-:focus-visible {
-    outline: 2px solid var(--secondary-text);
-    outline-offset: 4px;
 }
 
 .site-header {

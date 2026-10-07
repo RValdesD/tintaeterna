@@ -8,10 +8,29 @@
 
     <title>Inicia sesión | TintaEterna</title>
 
+    {% load static %}
+    <script src="{% static 'pages/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
     <link rel="stylesheet" href="{% static 'pages/login.css' %}">
+    
 </head>
 
 <body>
+    <div class="theme-controls">
+        <button
+            type="button"
+            id="theme-toggle"
+            aria-label="Light mode"
+            aria-pressed="false"
+        >
+            Light mode
+        </button>
+
+        <a class="back-button" href="{% url 'pages:home' %}">
+            Volver
+        </a>
+    </div>
+
     <main class="login-page">
         <h1>Inicia sesión</h1>
 

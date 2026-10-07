@@ -3,12 +3,16 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TintaEterna</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
     <script src="{% static 'pages/theme.js' %}"></script>
     <link rel="stylesheet" href="{% static 'pages/styles.css' %}" />
     <script src="{% static 'pages/home.js' %}" defer></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TintaEterna</title>
+
   </head>
 
   <body>
