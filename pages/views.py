@@ -7,25 +7,21 @@ def home(request):
             "title": "Obra1",
             "author": "Autor1",
             "rating": "4.8",
-            "color": "purple",
         },
         {
             "title": "Obra2",
             "author": "Autor2",
             "rating": "4.6",
-            "color": "pink",
         },
         {
             "title": "Obra3",
             "author": "Autor3",
             "rating": "4.9",
-            "color": "gold",
         },
         {
             "title": "Obra4",
             "author": "Autor4",
             "rating": "4.7",
-            "color": "white",
         },
     ]
 
@@ -34,25 +30,21 @@ def home(request):
             "title": "Obra5",
             "author": "Autor5",
             "rating": "4.5",
-            "color": "gold",
         },
         {
             "title": "Obra6",
             "author": "Autor6",
             "rating": "4.8",
-            "color": "purple",
         },
         {
             "title": "Obra7",
             "author": "Autor7",
             "rating": "4.6",
-            "color": "white",
         },
         {
             "title": "Obra8",
-            "author": "S. Luna",
+            "author": "Autor8",
             "rating": "4.7",
-            "color": "pink",
         },
     ]
 
