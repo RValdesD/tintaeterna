@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import logout
 from django.contrib import messages
 
 from django.views.decorators.debug import sensitive_post_parameters

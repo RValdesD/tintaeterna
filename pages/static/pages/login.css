@@ -147,3 +147,39 @@ button:hover {
 .account-link a {
     color: var(--accent);
 }
+
+.upload-list {
+    padding: 0;
+    list-style: none;
+}
+
+.upload-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+}
+
+.upload-list li span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.delete-form {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.delete-button {
+    width: auto;
+    padding: 6px 10px;
+    border: 1px solid var(--error-text);
+    background: transparent;
+    color: var(--error-text);
+    font-size: 12px;
+}
+
+.delete-button:hover {
+    background: var(--upload-hover);
+}

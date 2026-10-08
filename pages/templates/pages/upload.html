@@ -62,17 +62,30 @@
             <button type="submit">SUBIR</button>
         </form>
 
-        {% if uploads %}
-            <section>
-                <h2>Mis archivos</h2>
+    {% if uploads %}
+        <section>
+            <h2>Mis archivos</h2>
 
-                <ul>
-                    {% for upload in uploads %}
-                        <li>{{ upload.original_name }}</li>
-                    {% endfor %}
-                </ul>
-            </section>
-        {% endif %}
+            <ul class="upload-list">
+                {% for upload in uploads %}
+                    <li>
+                        <span>{{ upload.original_name }}</span>
+
+                        <form
+                            method="post"
+                            action="{% url 'pages:delete_upload' upload.id %}"
+                            class="delete-form"
+                        >
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">
+                                Eliminar
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
     </main>
 </body>
 </html>
