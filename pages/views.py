@@ -170,3 +170,8 @@ def delete_upload(request, upload_id):
 
     messages.success(request, "Archivo eliminado correctamente.")
     return redirect("pages:upload")
+
+@require_POST
+def logout_page(request):
+    logout(request)
+    return redirect("pages:home")
