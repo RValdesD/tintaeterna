@@ -84,13 +84,47 @@
         </p>
       </div>
 
-      <aside class="upload-column" aria-label="Publishing">
+    <aside class="upload-column" aria-label="Publicación">
         <a class="upload-button" href="{% url 'pages:upload' %}">
-          Subir Escrito
+            Subir Escrito
         </a>
 
-        <section class="upload-area" aria-label="Drag-and-drop area"></section>
-      </aside>
+        {% if user.is_authenticated %}
+            <form
+                id="drop-upload-form"
+                action="{% url 'pages:upload' %}"
+                method="post"
+                enctype="multipart/form-data"
+            >
+                {% csrf_token %}
+
+                <div id="drop-zone" class="upload-area">
+                    <label for="drop-file">
+                        Arrastra un archivo o selecciónalo
+                    </label>
+
+                    <input
+                        id="drop-file"
+                        name="file"
+                        type="file"
+                        accept=".pdf,.epub,.txt"
+                        required
+                    >
+
+                    <p>PDF, EPUB o TXT · Máximo 10 MB</p>
+                </div>
+
+                <p id="upload-status" role="status"></p>
+                <button type="submit">Subir archivo</button>
+            </form>
+        {% else %}
+            <div class="upload-area">
+                <a href="{% url 'pages:login' %}">
+                    Ingresa para subir un archivo
+                </a>
+            </div>
+        {% endif %}
+    </aside>
     </main>
   </body>
 </html>
