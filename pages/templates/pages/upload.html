@@ -1,22 +1,78 @@
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir escrito</title>
 
-    <link rel="stylesheet" href="{% static 'pages/styles.css' %}">
+    <title>Subir escrito | TintaEterna</title>
+
+    <script src="{% static 'pages/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/login.css' %}">
 </head>
 
 <body>
-    <header class="site-header">
-        <a href="{% url 'pages:home' %}">Home</a>
-    </header>
+    <div class="theme-controls">
+        <button
+            type="button"
+            id="theme-toggle"
+            aria-label="Light mode"
+            aria-pressed="false"
+        >
+            Light mode
+        </button>
 
-    <main>
+        <a class="back-button" href="{% url 'pages:home' %}">
+            Volver
+        </a>
+    </div>
+
+    <main class="login-page">
         <h1>Subir escrito</h1>
+
+        {% for message in messages %}
+            <p role="status">{{ message }}</p>
+        {% endfor %}
+
+        <form
+            method="post"
+            action="{% url 'pages:upload' %}"
+            enctype="multipart/form-data"
+        >
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            <div class="field">
+                <label for="{{ form.file.id_for_label }}">
+                    PDF, EPUB o TXT · Máximo 10 MB
+                </label>
+
+                {{ form.file }}
+
+                {% if form.file.errors %}
+                    <div class="errors" role="alert">
+                        {{ form.file.errors }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit">SUBIR</button>
+        </form>
+
+        {% if uploads %}
+            <section>
+                <h2>Mis archivos</h2>
+
+                <ul>
+                    {% for upload in uploads %}
+                        <li>{{ upload.original_name }}</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endif %}
     </main>
 </body>
 </html>

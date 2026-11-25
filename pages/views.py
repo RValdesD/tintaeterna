@@ -1,15 +1,23 @@
 from django.shortcuts import render
-from django.contrib.auth import authenticate, login
+
 from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404
+
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
 from .forms import LoginForm, SignupForm
 from .forms import StoryUploadForm
 from .models import StoryUpload
+
+
+
 
 def home(request):
     popular = [
@@ -146,3 +154,18 @@ def signup_page(request):
         "pages/signup.html",
         {"form": form},
     )
+
+@login_required
+@require_POST
+def delete_upload(request, upload_id):
+    story = get_object_or_404(
+        StoryUpload,
+        pk=upload_id,
+        owner=request.user,
+    )
+
+    story.file.delete(save=False)
+    story.delete()
+
+    messages.success(request, "Archivo eliminado correctamente.")
+    return redirect("pages:upload")

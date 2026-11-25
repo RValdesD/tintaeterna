@@ -235,4 +235,34 @@ h1 {
         grid-template-columns: repeat(2, minmax(0, 1fr));   
     }
 
+#drop-upload-form {
+    width: 100%;
+}
+
+.upload-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    text-align: center;
+}
+
+.upload-area.is-dragging {
+    background: var(--upload-hover);
+    border-style: solid;
+}
+
+#drop-file {
+    width: 100%;
+    min-width: 0;
+    color: var(--page-text);
+}
+
+#upload-status {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
 }
