@@ -58,6 +58,20 @@
                     </div>
                 {% endif %}
             </div>
+            
+            <div class="field">
+                <label>{{ form.tags.label }}</label>
+                
+                <div class="tags-checkbox-list">
+                    {{ form.tags }}
+                </div>
+                
+                {% if form.tags.errors %}
+                    <div class="errors" role="alert">
+                        {{ form.tags.errors }}
+                    </div>
+                {% endif %}
+            </div>
 
             <button type="submit">SUBIR</button>
         </form>
@@ -69,7 +83,14 @@
             <ul class="upload-list">
                 {% for upload in uploads %}
                     <li>
-                        <span>{{ upload.original_name }}</span>
+                        <span>
+                            {{ upload.original_name }}
+                            {% if upload.tags.all %}
+                                <small style="color: gray;">
+                                    ({% for tag in upload.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %})
+                                </small>
+                            {% endif %}
+                        </span>
 
                         <form
                             method="post"

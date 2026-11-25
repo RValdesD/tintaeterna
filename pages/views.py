@@ -93,6 +93,8 @@ def upload(request):
             story.original_name = form.cleaned_data["file"].name
             story.save()
 
+            form.save_m2m() #Guarda tags asociados en la base de datos
+
             messages.success(request, "Archivo subido correctamente.")
             return redirect("pages:upload")
 

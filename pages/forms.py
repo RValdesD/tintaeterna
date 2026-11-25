@@ -83,12 +83,14 @@ class SignupForm(UserCreationForm):
 class StoryUploadForm(forms.ModelForm):
     class Meta:
         model = StoryUpload
-        fields = ("file",)
-        labels = {"file": "Archivo"}
+        fields = ("file", "tags")
+        labels = {"file": "Archivo",
+                  "tags": "Tags (Opcional)"}
         widgets = {
             "file": forms.FileInput(attrs={
                 "accept": ".pdf,.epub,.txt",
             }),
+            "tags": forms.CheckboxSelectMultiple(), #Muestra cajas de selección múltiple
         }
 
     def clean_file(self):
