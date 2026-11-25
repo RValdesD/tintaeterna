@@ -1,0 +1,80 @@
+{% load static %}
+
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear cuenta | TintaEterna</title>
+
+    <script src="{% static 'pages/theme.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/login.css' %}">
+</head>
+
+<body>
+    <div class="theme-controls">
+        <button
+            type="button"
+            id="theme-toggle"
+            aria-label="Light mode"
+            aria-pressed="false"
+        >
+            Light mode
+        </button>
+
+        <a class="back-button" href="{% url 'pages:home' %}">
+            Volver
+        </a>
+    </div>
+
+    <main class="login-page">
+        <h1>Crear cuenta</h1>
+
+        <form method="post" action="{% url 'pages:signup' %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="errors" role="alert">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="field">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div
+                            class="help-text"
+                            id="{{ field.auto_id }}_helptext"
+                        >
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% if field.errors %}
+                        <div class="errors" role="alert">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit">CREAR CUENTA</button>
+        </form>
+
+        <p class="account-link">
+            <a href="{% url 'pages:login' %}">
+                Ya tengo una cuenta
+            </a>
+        </p>
+    </main>
+</body>
+</html>

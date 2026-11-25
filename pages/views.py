@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
-from .forms import LoginForm
+from .forms import LoginForm, SignupForm
 
 def home(request):
     popular = [
@@ -67,6 +67,7 @@ def upload(request):
 @sensitive_post_parameters("password")
 @never_cache
 @require_http_methods(["GET", "POST"])
+
 def login_page(request):
     if request.user.is_authenticated:
         return redirect("pages:home")
@@ -92,3 +93,24 @@ def login_page(request):
         )
 
     return render(request, "pages/login.html", {"form": form})
+
+@sensitive_post_parameters("password1", "password2")
+@never_cache
+@require_http_methods(["GET", "POST"])
+def signup_page(request):
+    if request.user.is_authenticated:
+        return redirect("pages:home")
+
+    form = SignupForm(
+        request.POST if request.method == "POST" else None
+    )
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("pages:login")
+
+    return render(
+        request,
+        "pages/signup.html",
+        {"form": form},
+    )
