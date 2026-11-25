@@ -4,9 +4,10 @@
 <html lang="en">
   <head>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
-    <script src="{% static 'pages/theme.js' %}"></script>
     <link rel="stylesheet" href="{% static 'pages/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
+
+    <script src="{% static 'pages/theme.js' %}"></script>
     <script src="{% static 'pages/home.js' %}" defer></script>
 
     <meta charset="UTF-8" />
@@ -30,23 +31,48 @@
             <button type="submit">Buscar</button>
           </form>
 
-          <nav aria-label="Account">
-            <button
-              type="button"
-              id="theme-toggle"
-              aria-label="Light mode"
-              aria-pressed="false"
-            >
-              Light mode
-            </button>
-            <a class="login-link" href="{% url 'pages:login' %}">Ingresar</a>
-            <a
-                class="login-link signup"
-                href="{% url 'pages:signup' %}"
-            >
-                Crear Cuenta
-            </a>
-          </nav>
+        <nav aria-label="Account">
+            {% if user.is_authenticated %}
+                <span class="welcome-text">
+                    bienvenido {{ user.username }}
+                </span>
+
+                <button
+                    type="button"
+                    id="theme-toggle"
+                    aria-label="Light mode"
+                    aria-pressed="false"
+                >
+                    Light mode
+                </button>
+
+                <form
+                    class="logout-form"
+                    method="post"
+                    action="{% url 'pages:logout' %}"
+                >
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            {% else %}
+                <button
+                    type="button"
+                    id="theme-toggle"
+                    aria-label="Light mode"
+                    aria-pressed="false"
+                >
+                    Light mode
+                </button>
+
+                <a class="login-link" href="{% url 'pages:login' %}">
+                    Ingresar
+                </a>
+
+                <a class="login-link signup" href="{% url 'pages:signup' %}">
+                    Crear Cuenta
+                </a>
+            {% endif %}
+        </nav>
         </div>
       </div>
     </header>
