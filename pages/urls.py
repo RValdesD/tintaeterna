@@ -1,9 +1,12 @@
 from django.urls import path
-from . import views
+from . import views, moderation_views
 
 app_name = "pages"
 
 urlpatterns = [
+    path("moderation/", moderation_views.dashboard, name="moderation_dashboard"),
+    path("moderation/<str:kind>/<int:target_id>/", moderation_views.action, name="moderation_action"),
+    path("account/notices/", moderation_views.notices, name="moderation_notices"),
     path("works/<int:upload_id>/", views.work_detail, name="work_detail"),
     path("works/sample/<int:sample_id>/", views.sample_work, name="sample_work"),
     path("upload/<int:upload_id>/presentation/", views.edit_story_presentation, name="edit_story_presentation"),

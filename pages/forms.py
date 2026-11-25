@@ -73,6 +73,8 @@ class SignupForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data["email"].strip().lower()
 
+        if email.rsplit("@", 1)[-1] == "admin.cl":
+            raise forms.ValidationError("Las cuentas @admin.cl solo se crean desde la consola.")
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError(
                 "Ya existe una cuenta con este correo electrónico."

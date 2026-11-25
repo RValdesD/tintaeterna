@@ -1,0 +1,5 @@
+{% extends 'pages/library_base.html' %}
+{% block title %}Avisos de moderación{% endblock %}
+{% block content %}<h1>Avisos de moderación</h1>
+{% for notice in notices %}<article><h2>{{ notice.work_title }}</h2><p>{{ notice.reason }}</p><time>{{ notice.created_at }}</time></article>
+{% empty %}<p>No tienes avisos.</p>{% endfor %}{% endblock %}

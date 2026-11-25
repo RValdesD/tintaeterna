@@ -72,6 +72,28 @@ class Profile(models.Model):
         return self.user.username
 
 
+class ModerationAccount(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="moderation_account")
+    is_admin = models.BooleanField(default=False, editable=False)
+    is_silenced = models.BooleanField(default=False)
+
+
+class ModerationNotice(models.Model):
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="moderation_notices")
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    work_title = models.CharField(max_length=255)
+    reason = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ModerationLog(models.Model):
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    action = models.CharField(max_length=30)
+    target = models.CharField(max_length=255)
+    reason = models.TextField(max_length=1000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class Comentarios(models.Model):
     """Existing comment schema retained from the comments migrations."""
     fecha = models.DateTimeField(auto_now_add=True)

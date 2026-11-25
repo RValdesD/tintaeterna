@@ -1,0 +1,33 @@
+{% extends 'pages/library_base.html' %}
+{% block title %}Moderación{% endblock %}
+{% block content %}
+<h1>Panel de moderación</h1>
+{% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
+<h2>Obras enviadas</h2>
+{% for work in works %}<article>
+<h3><a href="{% url 'pages:work_detail' work.pk %}">{{ work.display_title }}</a></h3><p>{{ work.owner.username }}</p>
+<form method="post">{% csrf_token %}
+<label>Motivo <input name="reason" maxlength="1000" required></label>
+<label><input type="checkbox" name="confirm" required> Confirmo la acción (eliminar es irreversible)</label>
+<button formaction="{% url 'pages:moderation_action' 'warn' work.pk %}">Emitir advertencia</button>
+<button formaction="{% url 'pages:moderation_action' 'remove' work.pk %}">Eliminar obra</button>
+</form></article>{% empty %}<p>No hay obras enviadas.</p>{% endfor %}
+<nav aria-label="Páginas de obras">{% if works.has_previous %}<a href="?works_page={{ works.previous_page_number }}&users_page={{ accounts.number }}">Anterior</a>{% endif %}
+<span>{{ works.number }} / {{ works.paginator.num_pages }}</span>
+{% if works.has_next %}<a href="?works_page={{ works.next_page_number }}&users_page={{ accounts.number }}">Siguiente</a>{% endif %}</nav>
+<h2>Usuarios registrados</h2>
+{% for account in accounts %}<article><h3>{{ account.username }}</h3><p>{{ account.email }}</p>
+{% if account.is_staff or account.is_superuser or account.moderation_account.is_admin %}<p>Cuenta administrativa protegida</p>
+{% else %}
+{% if account.moderation_account.is_silenced %}<p>Silenciado</p>{% endif %}
+<form method="post">{% csrf_token %}
+<label>Motivo <input name="reason" maxlength="1000" required></label>
+<label><input type="checkbox" name="confirm" required> Confirmo la acción (ban elimina cuenta y obras)</label>
+{% if account.moderation_account.is_silenced %}<button formaction="{% url 'pages:moderation_action' 'unsilence' account.pk %}">Quitar silencio</button>
+{% else %}<button formaction="{% url 'pages:moderation_action' 'silence' account.pk %}">Silenciar</button>{% endif %}
+<button formaction="{% url 'pages:moderation_action' 'ban' account.pk %}">Ban: eliminar cuenta</button>
+</form>{% endif %}</article>{% endfor %}
+<nav aria-label="Páginas de usuarios">{% if accounts.has_previous %}<a href="?users_page={{ accounts.previous_page_number }}&works_page={{ works.number }}">Anterior</a>{% endif %}
+<span>{{ accounts.number }} / {{ accounts.paginator.num_pages }}</span>
+{% if accounts.has_next %}<a href="?users_page={{ accounts.next_page_number }}&works_page={{ works.number }}">Siguiente</a>{% endif %}</nav>
+{% endblock %}

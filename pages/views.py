@@ -87,17 +87,17 @@ def sample_stories():
         },
         {
             "title": "Monochromia",
-            "author": "Autor3",
+            "author": "Aery W.",
             "rating": "4.9",
         },
         {
             "title": "CyberCidio",
-            "author": "Autor4",
+            "author": "xXxDanielxXx",
             "rating": "4.7",
         },
         {
             "title": "Carta Blanca",
-            "author": "Autor4",
+            "author": "KillerQueen",
             "rating": "4.7",
         },
     ]
