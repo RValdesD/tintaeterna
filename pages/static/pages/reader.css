@@ -16,3 +16,23 @@ nav { justify-content: center; }
 article { padding: 20px 0; border-bottom: 1px solid var(--purple); }
 article form { margin-top: 12px; }
 #bookmark-form { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+
+html {
+  scroll-behavior: smooth;
+}
+.upload-button,
+.login-link {
+    padding: 10px 16px;
+    border: 1px solid var(--purple);
+    background: transparent;
+    color: var(--page-text);
+    cursor: pointer;
+}
+
+.login-link {
+    display: inline-block;
+    text-decoration: none;
+}
+.comment-input {
+    height: 30px;
+}

@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import LoginForm, SignupForm
 from .forms import StoryUploadForm, StoryPresentationForm
-from .models import StoryUpload, Tag, Bookmark, Profile
+from .models import StoryUpload, Tag, Bookmark, Profile, Comentarios
 from .forms import ProfileDescriptionForm, ProfilePictureForm
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
@@ -36,19 +36,40 @@ def readable_story(request, upload_id):
 
     return story
 
+def get_coments(request, upload_id):
+    story = get_object_or_404(StoryUpload, pk=upload_id)
+    return Comentarios.objects.filter(historia=story).order_by("fecha")
 
 @never_cache
-@require_GET
+@require_http_methods(["GET", "POST"])
 def reader(request, upload_id):
-    story = readable_story(request, upload_id)
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("pages:login")
 
-    return render(request, "pages/reader.html", {
-        "story": story,
-        "format": Path(story.file.name).suffix.lower()[1:],
-        "saved_location": (Bookmark.objects.filter(user=request.user, story=story)
-                           .values_list("location", flat=True).first() or "")
-                           if request.user.is_authenticated else "",
-    })
+        story = readable_story(request, upload_id)
+        texto = request.POST.get("texto", "").strip()
+
+        if texto:
+            Comentarios.objects.create(
+                historia=story,
+                nombre=request.user.username,
+                texto=texto,
+            )
+
+        return redirect(f"{reverse('pages:reader', kwargs={'upload_id': upload_id})}#comentarios")
+    if request.method == "GET": 
+        story = readable_story(request, upload_id)
+        comentarios = get_coments(request, upload_id)
+
+        return render(request, "pages/reader.html", {
+            "story": story,
+            "format": Path(story.file.name).suffix.lower()[1:],
+            "comentarios": comentarios,
+            "saved_location": (Bookmark.objects.filter(user=request.user, story=story)
+                            .values_list("location", flat=True).first() or "")
+                            if request.user.is_authenticated else "",
+        })
 
 
 @never_cache
