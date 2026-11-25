@@ -2,8 +2,8 @@
 <details class="account-menu">
     <summary aria-label="Cuenta de {{ user.username }}">{{ user.username }}</summary>
     <div class="account-menu-panel">
-        <a href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
         <a href="{% url 'pages:my_profile' %}">Mi perfil</a>
+        <a href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
     </div>
 </details>
 {% endif %}

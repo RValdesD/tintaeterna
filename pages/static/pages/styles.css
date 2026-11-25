@@ -40,7 +40,7 @@ button:hover,
     border: 1px solid var(--purple);
     background: transparent;
     color: var(--page-text);
-    transform: translateX(5px);
+    transform: translateX(20px);
     cursor: pointer;
 }
 
@@ -239,7 +239,6 @@ h1 {
     max-width: 100%;
     padding: 20px;
     text-align: center;
-    translateX
 }
 
 .upload-area.is-dragging {
