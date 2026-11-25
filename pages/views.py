@@ -22,34 +22,39 @@ from django.views.decorators.http import require_GET
 
 
 def readable_story(request, upload_id):
-    story = get_object_or_404(StoryUpload, pk=upload_id, owner=request.user)
+    story = get_object_or_404(StoryUpload, pk=upload_id)
+
     if Path(story.file.name).suffix.lower() not in {".pdf", ".epub", ".txt"}:
         raise Http404("Formato no compatible.")
+
     return story
 
 
-@login_required
 @never_cache
 @require_GET
 def reader(request, upload_id):
     story = readable_story(request, upload_id)
+
     return render(request, "pages/reader.html", {
         "story": story,
         "format": Path(story.file.name).suffix.lower()[1:],
     })
 
 
-@login_required
 @never_cache
 @require_GET
 def reader_file(request, upload_id):
     story = readable_story(request, upload_id)
+
     try:
         source = story.file.open("rb")
     except (FileNotFoundError, OSError):
         raise Http404("El archivo ya no está disponible.")
+
     response = FileResponse(
-        source, as_attachment=True, filename=story.original_name,
+        source,
+        as_attachment=True,
+        filename=story.original_name,
         content_type="application/octet-stream",
     )
     response["X-Content-Type-Options"] = "nosniff"
