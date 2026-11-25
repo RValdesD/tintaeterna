@@ -1,16 +1,113 @@
-.account-menu { position: relative; color: var(--page-text); }
-.account-menu summary { padding: 10px 14px; border: 1px solid var(--purple); cursor: pointer; }
-.account-menu-panel { position: absolute; top: calc(100% + 6px); right: 0; z-index: 110; width: 190px; max-width: 85vw; background: var(--page-background); border: 1px solid var(--purple); padding: 6px; }
-.account-menu:not([open]) > .account-menu-panel { display: none; }
-.account-menu-panel a { display: block; padding: 10px; color: var(--page-text); text-decoration: none; }
-.account-menu-panel a:hover, .account-menu-panel a:focus-visible { background: var(--upload-hover); }
-.profile-heading { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin: 24px 0; }
-.profile-picture { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; border: 1px solid var(--outline); flex-shrink: 0; }
-.profile-placeholder { display: grid; place-items: center; font-size: 48px; }
-.profile-description { margin: 32px 0; }
-.profile-bio { overflow-wrap: anywhere; line-height: 1.6; margin-bottom: 16px; }
-.profile-form { max-width: 600px; }
-.profile-form textarea { width: 100%; padding: 12px; background: var(--page-background); color: var(--page-text); border: 1px solid var(--purple); font: inherit; }
-.profile-form input { max-width: 100%; }
-.profile-form label { display: block; margin-bottom: 8px; }
-.profile-form .errorlist { color: var(--secondary-text); }
+.account-menu {
+  position: relative;
+  color: var(--page-text);
+}
+.account-menu summary {
+  padding: 10px 14px;
+  border: 1px solid var(--purple);
+  cursor: pointer;
+}
+.account-menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 110;
+  width: 190px;
+  max-width: 85vw;
+  background: var(--page-background);
+  border: 1px solid var(--purple);
+  padding: 6px;
+}
+.account-menu:not([open]) > .account-menu-panel {
+  display: none;
+}
+.account-menu-panel a {
+  display: block;
+  padding: 10px;
+  color: var(--page-text);
+  text-decoration: none;
+}
+.account-menu-panel a:hover,
+.account-menu-panel a:focus-visible {
+  background: var(--upload-hover);
+}
+.profile-heading {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.profile-picture {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--outline);
+  flex-shrink: 0;
+}
+.profile-placeholder {
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+}
+.profile-description {
+  margin: 32px 0;
+}
+.profile-bio {
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.profile-form {
+  max-width: 600px;
+}
+.profile-form textarea {
+  width: 100%;
+  padding: 12px;
+  background: var(--page-background);
+  color: var(--page-text);
+  border: 1px solid var(--purple);
+  font: inherit;
+}
+.profile-form input {
+  max-width: 100%;
+}
+.profile-form label {
+  display: block;
+  margin-bottom: 8px;
+}
+.profile-form .errorlist {
+  color: var(--secondary-text);
+}
+
+body > header:not(.site-header) {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+body > header:not(.site-header) > .account-menu {
+    position: relative;
+    order: 99;
+    margin-left: 1500px;
+    right: auto;
+    top: auto;
+    transform: none;
+}
+
+body > header:not(.site-header) > .account-menu
+.account-menu-panel {
+    right: 0;
+    left: auto;
+}
+
+body > header:not(.site-header) button,
+body > header:not(.site-header) .guest-actions .guest-button,
+body > header:not(.site-header) .account-menu > summary {
+    font-size: 18px;
+    padding: 13px 20.8px;
+    line-height: 1.5;
+    border-radius: 0;
+}

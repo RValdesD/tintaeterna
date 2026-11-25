@@ -1,4 +1,4 @@
-{% load static %}
+{% load static comment_permissions %}
 <!doctype html>
 <html lang="es">
   <head>
@@ -9,22 +9,31 @@
     <link rel="stylesheet" href="{% static 'pages/theme.css' %}" />
     <link rel="stylesheet" href="{% static 'pages/reader.css' %}" />
     <script type="module" src="{% static 'pages/reader.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
     <script src="{% static 'pages/account-menu.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'pages/guest-actions.css' %}">
+  <link rel="stylesheet" href="{% static 'pages/comment-delete.css' %}">
+  <link rel="stylesheet" href="{% static 'pages/profile-revamp.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/reader-comments.css' %}">
+  <link rel="stylesheet" href="{% static 'pages/reader-layout.css' %}">
   </head>
   <body>
-    <header>
-      {% include 'pages/account_menu.html' %}
-      <a href="{% url 'pages:work_detail' story.id %}">Volver</a>
+    <header class="reader-header">
+      <a class="reader-back-button" href="{% url 'pages:work_detail' story.id %}">Volver</a>
       <button
         id="theme-toggle"
         type="button"
-        aria-label="Light mode"
+        aria-label="Cambiar tema"
         aria-pressed="false"
       >
-        Light mode
+        Modo Claro
       </button>
-      <a href="{% url 'pages:reader_file' story.id %}">Descargar</a>
+
+      {% if user.is_authenticated %}
+        {% include 'pages/account_menu.html' %}
+      {% else %}
+        {% include 'pages/guest_actions.html' %}
+      {% endif %}
     </header>
     <main
       id="reader"
@@ -37,7 +46,7 @@
       <form id="bookmark-form" action="{% url 'pages:save_bookmark' story.id %}" method="post">
         {% csrf_token %}
         <button id="save-bookmark" type="submit" disabled>Guardar marcador</button>
-        <a href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
+        <a class="reader-bookmarks-button" href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
       </form>
       <p id="bookmark-status" role="status"></p>
       {% else %}
@@ -50,36 +59,49 @@
         <span id="position" aria-live="polite"></span>
         <button id="next" disabled>Siguiente</button>
       </nav>
+      <div class="reader-download"><a href="{% url 'pages:reader_file' story.id %}">Descargar</a></div>
       <div id="book" aria-label="Contenido del escrito"></div>
 
-      <section id="comentarios">
-        <h1>Comentarios</h1>
+      <section id="comentarios" class="public-profile profile-comments reader-comments" aria-labelledby="reader-comments-title">
+        <h2 id="reader-comments-title">Comentarios</h2>
+        <ol class="comment-list">
+          {% for c in comentarios %}
+          <li id="comment-{{ c.pk }}"><article class="profile-comment">
+            <div class="comment-author">
+              {% if c.author.profile.avatar %}
+              <img src="{% url 'pages:profile_picture' c.author_id %}" alt="Foto de {{ c.author.username }}" width="48" height="48">
+              {% else %}<span class="comment-avatar-placeholder">{{ c.nombre|first|upper }}</span>{% endif %}
+              {% if c.author and c.author.is_active %}
+              <a href="{% url 'pages:profile' c.author_id %}">{{ c.author.first_name|default:c.author.username }}</a>
+              {% else %}<span>{{ c.nombre }}</span>{% endif %}
+            </div>
+            <time datetime="{{ c.fecha|date:'c' }}">{{ c.fecha|date:'d/m/Y H:i' }}</time>
+            {% if c.parent %}<p class="reply-context">En respuesta a <a href="#comment-{{ c.parent_id }}">{{ c.parent.nombre }}</a>: {{ c.parent.texto|truncatechars:100 }}</p>{% endif %}
+            <div class="comment-text">{{ c.texto|linebreaksbr }}</div>
+            {% if user.is_authenticated %}<a class="profile-action" href="?reply={{ c.pk }}#comment-form">Responder</a>{% endif %}
+            {% if user|can_delete_comment:c %}
+            <form method="post" action="{% url 'pages:delete_reader_comment' c.pk %}" class="comment-delete-form">
+              {% csrf_token %}<button type="submit" class="comment-delete-button">Eliminar comentario</button>
+            </form>
+            {% endif %}
+          </article></li>
+          {% empty %}<li class="empty-comments">Aún no hay comentarios.</li>{% endfor %}
+        </ol>
         {% if user.is_authenticated %}
-          <form method="post">
-            {% csrf_token %}
-            <label for="texto">Comentario</label>
-            <input class="comment-input" type="text" id="texto" name="texto" required>
-            <button type="submit" id="agregar">Agregar comentario</button>
-          </form>
+        <form id="comment-form" method="post" action="{% url 'pages:reader' story.pk %}">
+          {% csrf_token %}
+          {% if reply_to %}
+          <p>Responder a {{ reply_to.nombre }} <a href="{% url 'pages:reader' story.pk %}#comment-form">Cancelar</a></p>
+          <input type="hidden" name="parent" value="{{ reply_to.pk }}">
+          {% endif %}
+          {% if comment_error %}<p role="alert">{{ comment_error }}</p>{% endif %}
+          <label for="texto">Comentario</label>
+          <textarea id="texto" name="texto" rows="4" required>{{ comment_text }}</textarea>
+          <button type="submit" id="agregar">Publicar comentario</button>
+        </form>
         {% else %}
-        <p><strong>Registrate para comentar</strong></p>
-        <a class="login-link" href="{% url 'pages:login' %}">
-          Ingresar
-        </a>
-
-        <a class="login-link signup" href="{% url 'pages:signup' %}">
-          Crear Cuenta
-        </a>
+        <p class="comment-login"><a href="{% url 'pages:login' %}?next={{ request.path|urlencode }}">Inicia sesión para comentar</a></p>
         {% endif %}
-        {% for c in comentarios %}
-        <p>
-          <strong>{{c.nombre}}</strong>
-          <small>({{ c.fecha|date:"d/m/Y H:i" }})</small>
-        </p>
-        <p>{{c.texto}}</p>
-        {% empty %}
-          <p>No hay comentarios</p>
-        {% endfor %}
       </section>
     </main>
   </body>

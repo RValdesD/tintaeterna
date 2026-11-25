@@ -1,0 +1,12 @@
+.story-editor { max-width: 760px; margin: 32px auto; padding: 24px; }
+.story-editor .current-cover { display: block; width: 200px; max-width: 100%; height: auto; margin-bottom: 24px; }
+.story-editor .field { display: grid; gap: 8px; margin-bottom: 20px; }
+.story-editor input:not([type="checkbox"]), .story-editor textarea { width: 100%; padding: 10px; background: var(--page-bg, #000); color: var(--page-text, #fff); border: 1px solid var(--purple, #7952a8); }
+.story-editor details { margin-bottom: 24px; }
+.story-editor button { padding: 10px 20px; border-radius: 0; font: inherit; cursor: pointer; }
+
+#chapter-editor { margin: 24px 0; padding: 16px; border: 1px solid var(--purple); }
+.chapter-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: start; margin-bottom: 16px; }
+.chapter-row label { display: block; }
+.chapter-row .errorlist { padding-left: 16px; }
+@media (max-width: 600px) { .chapter-row { grid-template-columns: 1fr; } }

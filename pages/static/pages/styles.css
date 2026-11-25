@@ -396,7 +396,7 @@ main.homepage .story-card .author a {
     }
 }
 
-/* Black outlines in light mode, 1px thicker */
+/* Cambio light mode lineas mas espesas */
 :root[data-theme="light"] {
     --outline: #000;
 }
@@ -413,7 +413,7 @@ main.homepage .story-card .author a {
 :root[data-theme="light"] .tag-menu,
 :root[data-theme="light"] .account-menu summary,
 :root[data-theme="light"] .account-menu-panel {
-    border: 2px solid #000;
+    border: 1px solid #000;
 }
 
 :root[data-theme="light"] .upload-area {
@@ -422,4 +422,180 @@ main.homepage .story-card .author a {
 
 :root[data-theme="light"] .upload-area.is-dragging {
     border-style: solid;
+}
+
+:root[data-theme="light"] .site-header:has(#search-form) .catalog-nav a {
+    color: #611502;
+}
+
+:root[data-theme="light"] .site-header:has(#search-form) .catalog-nav a:hover,
+:root[data-theme="light"] .site-header:has(#search-form) .catalog-nav a[aria-current="page"] {
+    color: #e20e0e;
+}
+
+.upload-submit {
+    position: relative;
+    left: 70px;
+}
+
+.site-header:has(#search-form) .header-inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: clamp(24px, 3.5vw, 64px);
+}
+
+.site-header:has(#search-form) .header-actions {
+    display: flex;
+    flex: 1 1 0;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0;
+    margin-left: 0;
+}
+
+.site-header:has(#search-form) #search-form {
+    position: relative;
+    left: 0;
+    top: 0;
+    transform: none;
+    flex: 0 1 clamp(300px, 32vw, 600px);
+    width: auto;
+    min-width: 260px;
+    max-width: 600px;
+    margin: 0;
+    gap: 8px;
+}
+
+.site-header:has(#search-form) #story-search {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+}
+
+.site-header:has(#search-form) #search-form button,
+.site-header:has(#search-form) .tag-dropdown {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.site-header:has(#search-form) .catalog-nav {
+    display: flex;
+    flex: 1 0 auto;
+    width: auto;
+    max-width: none;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: nowrap;
+    gap: 0;
+    margin: 0;
+    padding: 0 12px;
+    position: static;
+    transform: none;
+}
+
+.site-header:has(#search-form) .catalog-nav a:first-child,
+.site-header:has(#search-form) .catalog-nav a:last-child {
+    position: relative;
+    inset: auto;
+    transform: none;
+    flex: 0 0 auto;
+    width: auto;
+    margin: 0 8px;
+    white-space: nowrap;
+}
+
+.site-header:has(#search-form) nav[aria-label="Account"] {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+.site-header:has(#search-form) .login-link {
+    transform: none;
+}
+
+@media (width < 1600px) {
+    .site-header:has(#search-form) .header-inner {
+        padding: 16px 20px;
+        gap: clamp(16px, 2vw, 32px);
+    }
+
+    .site-header:has(#search-form) .site-title {
+        font-size: clamp(30px, 2.5vw, 40px);
+    }
+
+    .site-header:has(#search-form) button,
+    .site-header:has(#search-form) input,
+    .site-header:has(#search-form) nav a,
+    .site-header:has(#search-form) summary {
+        font-size: clamp(12px, 1vw, 16px);
+    }
+
+    .site-header:has(#search-form) button,
+    .site-header:has(#search-form) .login-link,
+    .site-header:has(#search-form) .tag-dropdown summary {
+        padding: 8px 12px;
+        white-space: nowrap;
+    }
+}
+
+@media (width < 1100px) {
+    .site-header:has(#search-form) .header-inner {
+        flex-wrap: wrap;
+    }
+
+    .site-header:has(#search-form) .header-actions {
+        flex-basis: 100%;
+    }
+}
+
+@media (width < 800px) {
+    .site-header:has(#search-form) .header-actions {
+        flex-wrap: wrap;
+        row-gap: 16px;
+    }
+
+    .site-header:has(#search-form) #search-form {
+        flex: 1 1 100%;
+        min-width: 0;
+        max-width: none;
+    }
+
+    .site-header:has(#search-form) .catalog-nav {
+        flex: 1 1 100%;
+    }
+
+    .site-header:has(#search-form) nav[aria-label="Account"] {
+        flex: 1 1 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+.site-header:has(#search-form) .tag-dropdown {
+    display: flex;
+    align-self: stretch;
+}
+
+.site-header:has(#search-form) .tag-dropdown summary {
+    box-sizing: border-box;
+    min-width: 70px;
+    height: 100%;
+    align-content: center;
+    padding: 0 10px;
+    font-size: 16px;
+}
+
+@media (width < 1600px) {
+    .site-header:has(#search-form) .tag-dropdown summary {
+        font-size: clamp(12px, 1vw, 16px);
+    }
 }

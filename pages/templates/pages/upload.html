@@ -90,8 +90,8 @@
                 {% for upload in uploads %}
                     <li>
                         <span>
-                            <a href="{% url 'pages:reader' upload.id %}">{{ upload.display_title }} — Leer</a>
-                            <a href="{% url 'pages:edit_story_presentation' upload.id %}">Editar título y portada</a>
+                            <a href="{% url 'pages:work_detail' upload.id %}">{{ upload.display_title }}</a>
+                            <a href="{% url 'pages:edit_story' upload.id %}">Editar obra</a>
                             {% if upload.tags.all %}
                                 <small style="color: gray;">
                                     ({% for tag in upload.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %})

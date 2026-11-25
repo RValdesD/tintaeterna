@@ -27,7 +27,7 @@ from django.http import FileResponse, Http404
 from django.views.decorators.http import require_GET
 from django.templatetags.static import static
 
-
+#Obtiene una obra por su identificador y comprueba que el archivo tenga uno de los formatos admitidos por el lector (PDF, EPUB o TXT). Si no existe o el formato no es compatible, responde con un error 404.
 def readable_story(request, upload_id):
     story = get_object_or_404(StoryUpload, pk=upload_id)
 
@@ -35,45 +35,51 @@ def readable_story(request, upload_id):
         raise Http404("Formato no compatible.")
 
     return story
-
+#Obtiene los comentarios de una obra en orden cronológico. select_related carga de antemano el autor y el comentario padre para reducir consultas al mostrar la conversación.
 def get_coments(request, upload_id):
     story = get_object_or_404(StoryUpload, pk=upload_id)
-    return Comentarios.objects.filter(historia=story).order_by("fecha")
+    return Comentarios.objects.filter(historia=story).select_related("author__profile", "parent").order_by("fecha", "pk")
 
 @never_cache
 @require_http_methods(["GET", "POST"])
+#Muestra el lector de una obra y procesa la creación de comentarios y respuestas. Requiere que la obra tenga un formato admitido; para publicar exige una sesión iniciada y que el usuario pueda publicar según las reglas de moderación. También entrega al lector el formato, los comentarios y la última posición guardada.
 def reader(request, upload_id):
+    story = readable_story(request, upload_id)
+    reply_to = None
+    parent_id = request.POST.get("parent", "") if request.method == "POST" else request.GET.get("reply", "")
+    if parent_id:
+        if not parent_id.isdecimal() or len(parent_id) > 18:
+            raise Http404("Comentario no encontrado.")
+        reply_to = get_object_or_404(Comentarios, pk=int(parent_id), historia=story)
+    texto = ""
+    comment_error = ""
     if request.method == "POST":
         if not request.user.is_authenticated:
             return redirect("pages:login")
-
-        story = readable_story(request, upload_id)
+        from .moderation import ensure_can_publish
+        ensure_can_publish(request.user)
         texto = request.POST.get("texto", "").strip()
-
         if texto:
-            Comentarios.objects.create(
-                historia=story,
-                nombre=request.user.username,
-                texto=texto,
+            comment = Comentarios.objects.create(
+                historia=story, nombre=request.user.username,
+                author=request.user, texto=texto, parent=reply_to,
             )
-
-        return redirect(f"{reverse('pages:reader', kwargs={'upload_id': upload_id})}#comentarios")
-    if request.method == "GET": 
-        story = readable_story(request, upload_id)
-        comentarios = get_coments(request, upload_id)
-
-        return render(request, "pages/reader.html", {
-            "story": story,
-            "format": Path(story.file.name).suffix.lower()[1:],
-            "comentarios": comentarios,
-            "saved_location": (Bookmark.objects.filter(user=request.user, story=story)
-                            .values_list("location", flat=True).first() or "")
-                            if request.user.is_authenticated else "",
-        })
+            return redirect(reverse("pages:reader", args=[story.pk]) + f"#comment-{comment.pk}")
+        comment_error = "Escribe un comentario."
+    return render(request, "pages/reader.html", {
+        "story": story,
+        "format": Path(story.file.name).suffix.lower()[1:],
+        "comentarios": get_coments(request, upload_id),
+        "reply_to": reply_to, "comment_text": texto, "comment_error": comment_error,
+        "saved_location": (Bookmark.objects.filter(user=request.user, story=story)
+                        .values_list("location", flat=True).first() or "")
+                        if request.user.is_authenticated else "",
+    })
 
 
 @never_cache
 @require_GET
+#Entrega el archivo de una obra como descarga. Verifica previamente el formato y devuelve 404 si el archivo físico ya no está disponible; añade cabeceras para evitar que el navegador interprete el contenido como otro tipo de recurso.
 def reader_file(request, upload_id):
     story = readable_story(request, upload_id)
 
@@ -93,7 +99,7 @@ def reader_file(request, upload_id):
 
 
 
-
+#Construye los datos estáticos de las obras populares y recomendadas que se utilizan como contenido de muestra en la página principal, junto con el mapeo de sus portadas.
 def sample_stories():
     popular = [
         {
@@ -160,43 +166,19 @@ def sample_stories():
     return popular, recommended, sample_covers
 
 
+@never_cache
+#Renderiza la página principal. Vincula las tarjetas de muestra con obras disponibles, obtiene las recomendaciones correspondientes al usuario actual y entrega las etiquetas ordenadas alfabéticamente.
 def home(request):
     popular, recommended, sample_covers = sample_stories()
-    for index, item in enumerate(popular + recommended, start=1):
-        item["work_url"] = reverse("pages:sample_work", args=[index])
-        item["profile_url"] = reverse(
-            "pages:demo_profile",
-            args=[item["author"]],
-        )
+    from .sample_works import link_sample_cards
+    link_sample_cards(popular, sample_covers)
+    from .recommendations import recommended_cards
+    recommended = recommended_cards(request.user)
 
-        filename = sample_covers.get(item["title"])
-        item["cover_url"] = (
-            static(f"public/images/{filename}") if filename else ""
-        )
-
-
-    uploads = (
-        StoryUpload.objects.select_related("owner")
-        .prefetch_related("tags")
-        .order_by("-uploaded_at")
-    )
-    uploaded_cards = [
-        {
-            "title": item.display_title,
-            "author": item.owner.username,
-            "profile_url": reverse("pages:profile", args=[item.owner_id]),
-            "reader_url": reverse("pages:reader", args=[item.pk]),
-            "work_url": reverse("pages:work_detail", args=[item.pk]),
-            "cover_url": reverse("pages:story_cover", args=[item.pk]) if item.cover else "",
-            "tags": item.tags,
-        }
-        for item in uploads
-    ]
     return render(request, "pages/home.html", {
         "sections": [
             {"title": "Popular: Esta Semana", "stories": popular},
             {"title": "Obras Recomendadas", "stories": recommended},
-            {"title": "Escritos publicados", "stories": uploaded_cards},
         ],
         "tags": Tag.objects.order_by("name"),
     })
@@ -204,6 +186,7 @@ def home(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+#Permite a un usuario autenticado subir una obra y consultar sus propias subidas. Valida el formulario, limita cada envío a un solo archivo, asigna el propietario y guarda las relaciones ManyToMany de etiquetas después de guardar la obra.
 def upload(request):
     form = StoryUploadForm(
         request.POST if request.method == "POST" else None,
@@ -238,6 +221,7 @@ def upload(request):
 @never_cache
 @require_http_methods(["GET", "POST"])
 
+#Gestiona el inicio de sesión mediante correo electrónico y contraseña. Si las credenciales son válidas inicia la sesión y respeta el parámetro next únicamente cuando apunta al mismo host; de lo contrario redirige a la página principal.
 def login_page(request):
     if request.user.is_authenticated:
         return redirect("pages:home")
@@ -273,6 +257,7 @@ def login_page(request):
 @sensitive_post_parameters("password1", "password2")
 @never_cache
 @require_http_methods(["GET", "POST"])
+#Muestra y procesa el formulario de registro. Evita que una persona que ya inició sesión vuelva a registrarse y, tras crear correctamente la cuenta, la dirige al formulario de inicio de sesión.
 def signup_page(request):
     if request.user.is_authenticated:
         return redirect("pages:home")
@@ -293,6 +278,7 @@ def signup_page(request):
 
 @login_required
 @require_POST
+#Elimina una obra únicamente si pertenece al usuario autenticado. Borra primero los archivos asociados (portada y documento), elimina el registro y muestra un mensaje de confirmación.
 def delete_upload(request, upload_id):
     story = get_object_or_404(
         StoryUpload,
@@ -308,12 +294,14 @@ def delete_upload(request, upload_id):
     return redirect("pages:upload")
 
 @require_POST
+#Cierra la sesión actual y redirige a la página principal. La vista solo acepta solicitudes POST.
 def logout_page(request):
     logout(request)
     return redirect("pages:home")
 
 
 @require_GET
+#Muestra el perfil público de una cuenta activa, junto con sus datos de perfil y sus obras. prefetch_related carga las etiquetas de las obras para evitar consultas repetidas al renderizar.
 def public_profile(request, user_id):
     author = get_object_or_404(get_user_model(), pk=user_id, is_active=True)
     return render(request, "pages/profile.html", {
@@ -325,6 +313,7 @@ def public_profile(request, user_id):
 
 
 @require_GET
+#Renderiza perfiles de demostración con datos predefinidos. Solo admite autores incluidos en el conjunto de muestras; cualquier otro nombre produce un 404.
 def demo_profile(request, author):
     demo_titles = {f"Autor{i}": f"Obra{i}" for i in range(1, 9)}
     demo_titles.update({
@@ -342,6 +331,7 @@ def demo_profile(request, author):
 @login_required
 @never_cache
 @require_GET
+#Muestra los marcadores del usuario autenticado. La consulta carga también la obra y su propietario para reducir consultas al construir la página.
 def bookmarks(request):
     return render(request, "pages/bookmarks.html", {
         "bookmarks": Bookmark.objects.filter(user=request.user).select_related("story", "story__owner"),
@@ -351,6 +341,7 @@ def bookmarks(request):
 @login_required
 @never_cache
 @require_POST
+#Valida y guarda la posición de lectura de una obra para el usuario autenticado. Para EPUB acepta una ubicación EPUB CFI acotada y sin caracteres de control; para los demás formatos acepta un número de página positivo. Actualiza el marcador existente o crea uno nuevo y responde en JSON.
 def save_bookmark(request, upload_id):
     story = readable_story(request, upload_id)
     location = request.POST.get("location", "")
@@ -369,6 +360,7 @@ def save_bookmark(request, upload_id):
 
 @login_required
 @require_POST
+#Elimina el marcador de la obra indicada para el usuario autenticado y vuelve a la lista de marcadores.
 def delete_bookmark(request, upload_id):
     Bookmark.objects.filter(user=request.user, story_id=upload_id).delete()
     return redirect("pages:bookmarks")
@@ -376,12 +368,14 @@ def delete_bookmark(request, upload_id):
 
 @login_required
 @require_GET
+#Redirige al perfil público correspondiente al usuario autenticado, evitando mantener una segunda implementación de la página de perfil.
 def my_profile(request):
     return redirect("pages:profile", user_id=request.user.pk)
 
 
 @login_required
 @require_http_methods(["GET", "POST"])
+#Permite crear o actualizar la descripción del perfil del usuario autenticado. Si el formulario es válido guarda los cambios y vuelve al perfil; en solicitudes GET muestra el formulario.
 def edit_profile(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
     form = ProfileDescriptionForm(request.POST or None, instance=profile)
@@ -394,6 +388,7 @@ def edit_profile(request):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+#ermite actualizar el avatar del usuario autenticado. Si se reemplaza una imagen anterior, elimina el archivo previo del almacenamiento para no dejar archivos huérfanos.
 def edit_profile_picture(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
     old_name = profile.avatar.name
@@ -411,6 +406,7 @@ def edit_profile_picture(request):
 
 
 @require_GET
+#Entrega el avatar de una cuenta activa. Responde 404 si el perfil o la imagen no existen o si el archivo no puede abrirse, y evita almacenar en caché la respuesta.
 def profile_picture(request, user_id):
     profile = get_object_or_404(Profile, user_id=user_id, user__is_active=True)
     if not profile.avatar:
@@ -427,6 +423,7 @@ def profile_picture(request, user_id):
 
 @login_required
 @require_http_methods(["GET", "POST"])
+#Permite al propietario modificar el título, la descripción y la portada de una obra. Si se reemplaza la portada, elimina el archivo anterior y luego vuelve a la lista de subidas.
 def edit_story_presentation(request, upload_id):
     story = get_object_or_404(StoryUpload, pk=upload_id, owner=request.user)
     old_cover = story.cover.name
@@ -443,6 +440,7 @@ def edit_story_presentation(request, upload_id):
 
 
 @require_GET
+#Entrega la portada de una obra como imagen PNG. Si no hay portada o el archivo no está disponible, responde con 404 y evita que el navegador almacene la respuesta en caché.
 def story_cover(request, upload_id):
     story = get_object_or_404(StoryUpload, pk=upload_id)
     if not story.cover:
@@ -458,8 +456,12 @@ def story_cover(request, upload_id):
 
 
 @require_GET
+#Muestra la página de detalle de una obra. Si el registro todavía no tiene archivo asociado, presenta la vista de obra pendiente con su portada; de lo contrario entrega título, descripción, obra y formato al detalle.
 def work_detail(request, upload_id):
-    story = readable_story(request, upload_id)
+    story = get_object_or_404(StoryUpload, pk=upload_id)
+    if not story.file:
+        from .sample_works import cover_url
+        return render(request, "pages/work_pending.html", {"story": story, "cover_url": cover_url(story)})
     return render(request, "pages/work_detail.html", {
         "title": story.display_title,
         "description": story.description,
@@ -469,12 +471,17 @@ def work_detail(request, upload_id):
 
 
 @require_GET
+#Muestra una obra del catálogo de muestra según su posición en la lista de populares y recomendadas. Si existe una obra real vinculada a esa muestra redirige a ella; si no, renderiza los datos de muestra.
 def sample_work(request, sample_id):
     popular, recommended, _ = sample_stories()
     works = popular + recommended
     if not 1 <= sample_id <= len(works):
         raise Http404("Obra no encontrada.")
     work = works[sample_id - 1]
+    from .sample_works import sample_key
+    linked = StoryUpload.objects.filter(sample_key=sample_key(work)).first()
+    if linked:
+        return redirect("pages:work_detail", upload_id=linked.pk)
     return render(request, "pages/work_detail.html", {
         "title": work["title"],
         "description": work.get("description", ""),

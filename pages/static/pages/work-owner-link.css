@@ -1,0 +1,26 @@
+body > header.work-header > .work-account-actions {
+    position: relative;
+    margin-left: auto;
+    order: 99;
+}
+body > header.work-header .work-account-actions > .account-menu {
+    position: relative;
+    margin: 0;
+    inset: auto;
+    transform: none;
+}
+body > header.work-header .work-owner-edit {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0px;
+    white-space: nowrap;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: 14px/1.5 Arial, sans-serif;
+    color: var(--page-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+body > header.work-header .work-owner-edit:hover { color: var(--gold); }
+body > header.work-header:has(.work-owner-edit) { margin-bottom: 28px; }

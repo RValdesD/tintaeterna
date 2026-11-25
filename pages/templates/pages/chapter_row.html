@@ -1,0 +1,7 @@
+<div class="chapter-row">
+  <div>{{ chapter.title.label_tag }}{{ chapter.title }}{{ chapter.title.errors }}</div>
+  <div>{{ chapter.start_page.label_tag }}{{ chapter.start_page }}{{ chapter.start_page.errors }}</div>
+  <div>{{ chapter.end_page.label_tag }}{{ chapter.end_page }}{{ chapter.end_page.errors }}</div>
+  <div>{{ chapter.DELETE }}<label for="{{ chapter.DELETE.id_for_label }}">Eliminar</label></div>
+  {{ chapter.non_field_errors }}
+</div>

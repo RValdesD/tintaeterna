@@ -1,0 +1,16 @@
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="pagination" aria-label="Páginas de obras">
+{% if page_obj.has_previous %}
+<a href="?{{ pagination_query }}&page=1" aria-label="Primera página">«</a>
+<a href="?{{ pagination_query }}&page={{ page_obj.previous_page_number }}" aria-label="Página anterior">‹</a>
+{% endif %}
+{% for number in page_numbers %}
+{% if number == page_obj.paginator.ELLIPSIS %}<span class="ellipsis">…</span>
+{% elif number == page_obj.number %}<span aria-current="page" aria-label="Página {{ number }}">{{ number }}</span>
+{% else %}<a href="?{{ pagination_query }}&page={{ number }}" aria-label="Página {{ number }}">{{ number }}</a>{% endif %}
+{% endfor %}
+{% if page_obj.has_next %}
+<a href="?{{ pagination_query }}&page={{ page_obj.next_page_number }}" aria-label="Página siguiente">›</a>
+<a href="?{{ pagination_query }}&page={{ page_obj.paginator.num_pages }}" aria-label="Última página">»</a>
+{% endif %}
+</nav>{% endif %}

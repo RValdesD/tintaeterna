@@ -1,0 +1,63 @@
+{% extends 'pages/library_base.html' %} {% load static %} {% block title %}Editar obra{% endblock %} {% block extra_head %}<link
+  rel="stylesheet"
+  href="{% static 'pages/story-edit.css' %}"
+/>
+<script src="{% static 'pages/chapter-editor.js' %}" defer></script>
+{% endblock %} {% block content %}
+<section class="story-editor">
+  <h1>Editar obra</h1>
+  {% if cover_url %}<img
+    class="current-cover"
+    src="{{ cover_url }}"
+    alt="Portada de {{ story.display_title }}"
+  />{% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %} {{ form.non_field_errors }}
+
+    <div class="field">
+      {{ form.title.label_tag }}{{ form.title }}{{ form.title.errors }}
+    </div>
+
+    <div class="field">
+      {{ form.description.label_tag }}{{ form.description }}{{ form.description.errors }}
+    </div>
+
+    <div class="field">
+      {{ form.cover.label_tag }}{{ form.cover }}{{ form.cover.errors }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.file.id_for_label }}">Obra (Archivo)</label> {% if story.file %}
+      {% else %}
+      <p>Esta obra aún no tiene archivo.</p>
+      {% endif %} {{ form.file }}{{ form.file.errors }}
+    </div>
+
+    <details>
+      <summary>Tags</summary>
+      {{ form.tags }}{{ form.tags.errors }}
+    </details>
+
+    <fieldset id="chapter-editor">
+      <legend>Capítulos del PDF</legend>
+      <p>
+        Permite definir capitulos manualmente.
+      </p>
+      {{ chapters.management_form }} {{ chapters.non_form_errors }}
+
+      <div id="chapter-rows">
+        {% for chapter in chapters %}{% include 'pages/chapter_row.html' %}{% endfor %}
+      </div>
+
+      <template id="chapter-empty"
+        >{% include 'pages/chapter_row.html' with chapter=chapters.empty_form %}</template
+      >
+
+      <button id="add-chapter" type="button">Agregar Capítulo</button>
+    </fieldset>
+
+    <button type="submit">Guardar cambios</button>
+  </form>
+</section>
+{% endblock %}

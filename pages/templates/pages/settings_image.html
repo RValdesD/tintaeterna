@@ -1,0 +1,14 @@
+<section class="settings-image" data-image-editor>
+<h2>{{ title }}</h2>
+<div class="settings-image-preview">
+<img data-preview {% if image %}src="{{ preview_url }}"{% else %}hidden{% endif %} alt="{{ title }} actual">
+<span data-placeholder {% if image %}hidden{% endif %}>Sin imagen</span>
+</div>
+<input data-image-input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}" accept="image/png,image/jpeg,image/webp" hidden>
+<input data-image-clear type="checkbox" name="{{ field.html_name }}-clear" id="{{ field.html_name }}-clear_id" {% if field.value == False %}checked{% endif %} hidden>
+<div class="settings-image-buttons">
+<button type="button" data-reset-image>Restablecer</button>
+<button type="button" data-change-image>Cambiar</button>
+</div>
+{{ field.errors }}
+</section>

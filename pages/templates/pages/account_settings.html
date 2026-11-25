@@ -1,0 +1,26 @@
+{% extends 'pages/library_base.html' %}
+{% load static %}
+{% block title %}Ajustes{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'pages/profile-revamp.css' %}">
+<link rel="stylesheet" href="{% static 'pages/gustos.css' %}">
+<link rel="stylesheet" href="{% static 'pages/account-settings.css' %}">
+<script src="{% static 'pages/account-settings.js' %}" defer></script>
+{% endblock %}
+{% block main_class %}account-settings{% endblock %}
+{% block content %}
+<h1>Ajustes del perfil</h1>
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+{{ form.non_field_errors }}
+<div class="settings-images">
+{% url 'pages:profile_picture' user.pk as avatar_url %}
+{% url 'pages:profile_banner' user.pk as banner_url %}
+{% include 'pages/settings_image.html' with field=form.avatar preview_url=avatar_url image=form.instance.avatar title='Foto de perfil' %}
+{% include 'pages/settings_image.html' with field=form.banner preview_url=banner_url image=form.instance.banner title='Banner' %}
+</div>
+<div class="settings-field"><label for="{{ form.description.id_for_label }}">Sobre mí</label>{{ form.description }}{{ form.description.errors }}</div>
+<div class="settings-field">{{ form.gustos.label_tag }}{{ form.gustos }}{{ form.gustos.errors }}</div>
+<button type="submit">Guardar cambios</button>
+</form>
+{% endblock %}

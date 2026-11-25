@@ -1,33 +1,157 @@
 {% extends 'pages/library_base.html' %}
-{% block title %}{{ author_name }}{% endblock %}
-{% block content %}
-{% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
-<section class="profile-heading">
-    {% if profile.avatar %}
-    <img class="profile-picture" src="{% url 'pages:profile_picture' author.id %}" alt="Foto de {{ author_name }}" width="128" height="128">
-    {% else %}
-    <div class="profile-picture profile-placeholder" role="img" aria-label="Sin foto de perfil">{{ author_name|first|upper }}</div>
-    {% endif %}
-    <div><h1>{{ author_name }}</h1>
-    {% if user.is_authenticated and user == author %}
-    <a href="{% url 'pages:edit_profile_picture' %}">Cambiar foto de perfil</a>
-    {% endif %}
-    {% if demo %}<p>Perfil de ejemplo</p>{% endif %}
+{% load static profile_bbcode comment_permissions %}
+ {% block title %}{{ author_name }}{% endblock %} {% block extra_head %}<link
+  rel="stylesheet"
+  href="{% static 'pages/comment-delete.css' %}"
+/><link rel="stylesheet" href="{% static 'pages/profile-revamp.css' %}" />{% endblock %} {% block main_class %}public-profile{% endblock %} {% block content %} {% for message in messages %}
+<p role="status">{{ message }}</p>
+{% endfor %}
+<section class="profile-hero">
+  {% if profile.banner %}<img
+    class="profile-banner"
+    src="{% url 'pages:profile_banner' author.pk %}"
+    alt="Banner de {{ author_name }}"
+  />{% endif %}
+  <div class="profile-intro">
+    <div class="profile-identity">
+      {% if profile.avatar %}<img
+        class="profile-avatar"
+        src="{% url 'pages:profile_picture' author.pk %}"
+        alt="Foto de {{ author_name }}"
+      />
+      {% else %}
+      <div class="profile-avatar avatar-placeholder">
+        {{ author_name|first|upper }}
+      </div>
+      {% endif %}
+      <div class="profile-name">
+        {% if user == author %}
+        <a class="profile-settings-gear"
+        href="{% url 'pages:account_settings' %}"
+        aria-label="Ajustes de la cuenta"
+        title="Ajustes">
+            <img src="{% static 'public/images/gear.png' %}" alt="">
+        </a>
+        {% endif %}
+
+        <h1>{{ author_name }}</h1>
     </div>
+    </div>
+        <details class="profile-about" open>
+            <summary>Sobre mí</summary>
+            <div class="bbcode">{% if profile.description %}{{ profile.description|bbcode }}{% else %}Sin descripción.{% endif %}</div>
+        </details>
+    </div>
+    </details>
+  </div>
 </section>
-<section class="profile-description">
-    <h2>Descripción</h2>
-    {% if profile.description %}<div class="profile-bio">{{ profile.description|linebreaksbr }}</div>
-    {% else %}<p>Sin descripción.</p>{% endif %}
-    {% if user.is_authenticated and user == author %}
-    <a href="{% url 'pages:edit_profile' %}">Editar descripción</a>
-    {% endif %}
+<section class="published-works">
+  <h2>Obras Publicadas</h2>
+  <ul>
+    {% for work in works %}
+    <li>
+      <a href="{% url 'pages:work_detail' work.pk %}"
+        >{{ work.display_title }}</a
+      >
+    </li>
+    {% empty %}{% if demo %}
+    <li>{{ demo_title }} · Vista previa de ejemplo</li>
+    {% else %}
+    <li>Aún no hay obras publicadas.</li>
+    {% endif %}{% endfor %}
+  </ul>
 </section>
-<section><h2>Obras publicadas</h2>
-{% if demo %}<article><h3>{{ demo_title }}</h3><p>Vista previa de ejemplo · Sin archivo de lectura</p></article>{% endif %}
-{% for work in works %}<article>
-<h3><a href="{% url 'pages:work_detail' work.id %}">{{ work.display_title }}</a></h3>
-<p>{% for tag in work.tags.all %}{{ tag.name }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
-</article>{% empty %}{% if not demo %}<p>Aún no hay escritos publicados.</p>{% endif %}{% endfor %}
+<section
+  class="profile-comments"
+  id="comments"
+  aria-labelledby="comments-title"
+>
+  <h2 id="comments-title">Comentarios</h2>
+  {% if demo %}
+  <p class="comment-login">
+    Este es un perfil de ejemplo. Los comentarios están disponibles en los
+    perfiles de miembros registrados.
+  </p>
+  {% else %}
+  <ol class="comment-list" start="{{ comments_page.start_index|default:1 }}">
+    {% for comment in comments_page %}
+    <li id="comment-{{ comment.pk }}">
+      <article class="profile-comment">
+        <div class="comment-author">
+          {% if comment.sender.profile.avatar %}<img
+            src="{% url 'pages:profile_picture' comment.sender_id %}"
+            alt="Foto de {{ comment.sender.username }}"
+            width="48"
+            height="48"
+          />
+          {% else %}<span class="comment-avatar-placeholder"
+            >{{ comment.sender.username|first|upper }}</span
+          >{% endif %}
+          <a href="{% url 'pages:profile' comment.sender_id %}"
+            >{{ comment.sender.username }}</a
+          >
+        </div>
+        <time datetime="{{ comment.created_at|date:'c' }}"
+          >{{ comment.created_at|date:'d/m/Y H:i' }}</time
+        >
+        {% if comment.parent %}
+        <p class="reply-context">
+          En respuesta a {{ comment.parent.sender.username }}: {{ comment.parent.text|truncatechars:100 }}
+        </p>
+        {% endif %}
+        <div class="comment-text">{{ comment.text|linebreaksbr }}</div>
+        {% if user.is_authenticated %}<a
+          class="profile-action"
+          href="?page={{ comments_page.number }}&reply={{ comment.pk }}#comment-form"
+          >Responder</a
+        >{% endif %} {% if user|can_delete_comment:comment %}
+        <form
+          method="post"
+          action="{% url 'pages:delete_profile_comment' comment.pk %}"
+          class="comment-delete-form"
+        >
+          {% csrf_token %}<button type="submit" class="comment-delete-button">
+            Eliminar comentario
+          </button>
+        </form>
+        {% endif %}
+      </article>
+    </li>
+    {% empty %}
+    <li class="empty-comments">Aún no hay comentarios.</li>
+    {% endfor %}
+  </ol>
+  {% if comments_page.paginator.num_pages > 1 %}
+  <nav class="comment-pagination" aria-label="Páginas de comentarios">
+    {% if comments_page.has_previous %}<a
+      href="?page={{ comments_page.previous_page_number }}#comments"
+      >Anterior</a
+    >{% endif %}
+    <span
+      >{{ comments_page.number }} / {{ comments_page.paginator.num_pages }}</span
+    >
+    {% if comments_page.has_next %}<a
+      href="?page={{ comments_page.next_page_number }}#comments"
+      >Siguiente</a
+    >{% endif %}
+  </nav>
+  {% endif %} {% if user.is_authenticated %}
+  <form id="comment-form" method="post">
+    {% csrf_token %} {% if reply_to %}
+    <p>
+      Responder a {{ reply_to.sender.username }}
+      <a href="?page={{ comments_page.number }}#comment-form">Cancelar</a>
+    </p>
+    {% endif %} {{ comment_form.as_p }}<button type="submit">
+      Publicar comentario
+    </button>
+  </form>
+  {% else %}
+  <p class="comment-login">
+    <a href="{% url 'pages:login' %}?next={{ request.path|urlencode }}"
+      >Inicia sesión para comentar</a
+    >
+  </p>
+  {% endif %} {% endif %}
 </section>
 {% endblock %}

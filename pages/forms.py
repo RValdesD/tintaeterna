@@ -8,17 +8,18 @@ from zipfile import BadZipFile, ZipFile
 from .models import StoryUpload
 
 class LoginForm(forms.Form):
-    email = forms.EmailField(
-        label="Correo electrónico",
+    # Keep the field name for compatibility with the existing view/template.
+    email = forms.CharField(
+        label="Usuario o correo electrónico",
         max_length=254,
-        widget=forms.EmailInput(attrs={
-            "placeholder": "e-mail",
-            "autocomplete": "email",
+        strip=True,
+        widget=forms.TextInput(attrs={
+            "placeholder": "Usuario o correo electrónico",
+            "autocomplete": "username",
+            "autocapitalize": "none",
+            "spellcheck": "false",
         }),
-        error_messages={
-            "required": "Ingresa tu correo electrónico.",
-            "invalid": "Ingresa un correo electrónico válido.",
-        },
+        error_messages={"required": "Ingresa tu usuario o correo electrónico."},
     )
 
     password = forms.CharField(
@@ -33,7 +34,17 @@ class LoginForm(forms.Form):
         },
     )
 
+from .preference_forms import gustos_field
+
+
 class SignupForm(UserCreationForm):
+    gustos = gustos_field()
+
+    def _save_m2m(self):
+        super()._save_m2m()
+        profile, _ = Profile.objects.get_or_create(user=self.instance)
+        profile.gustos.set(self.cleaned_data.get("gustos", []))
+
     email = forms.EmailField(
         label="Correo electrónico",
         max_length=254,
@@ -105,14 +116,18 @@ def clean_story_cover(cover):
 
 
 class StoryUploadForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file"].required = True
+
     def clean_cover(self):
         return clean_story_cover(self.cleaned_data.get("cover"))
 
     class Meta:
         model = StoryUpload
         fields = ("title", "description", "file", "cover", "tags")
-        labels = {"title": "Título (opcional)", "description": "Descripción (opcional)", "cover": "Portada (opcional)", "file": "Archivo",
-                  "tags": "Tags (Opcional)"}
+        labels = {"title": "Título", "description": "Descripción", "cover": "Portada", "file": "Archivo",
+                  "tags": "Tags"}
         widgets = {
             "file": forms.FileInput(attrs={
                 "accept": ".pdf,.epub,.txt",
@@ -238,7 +253,7 @@ class StoryPresentationForm(forms.ModelForm):
     class Meta:
         model = StoryUpload
         fields = ["title", "description", "cover"]
-        labels = {"title": "Título", "description": "Descripción (opcional)", "cover": "Portada"}
+        labels = {"title": "Título", "description": "Descripción", "cover": "Portada"}
         widgets = {"cover": forms.FileInput(attrs={"accept": "image/png,image/jpeg"})}
 
     def clean_cover(self):

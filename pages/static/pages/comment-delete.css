@@ -1,0 +1,26 @@
+form.comment-delete-form {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 12px;
+}
+
+form.comment-delete-form button.comment-delete-button {
+    --delete-offset-x: 0px;
+    position: relative;
+    left: -10px;
+    top: -38px;
+    width: auto;
+    padding: 8px 14px;
+    border: 1px solid #e53935;
+    border-radius: 0;
+    background: transparent;
+    color: #e53935;
+    cursor: pointer;
+}
+
+form.comment-delete-form button.comment-delete-button:hover {
+    background: #b71c1c;
+    border-color: #b71c1c;
+    color: #ffffff;
+}

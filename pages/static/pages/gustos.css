@@ -1,0 +1,32 @@
+.gustos-picker {
+    margin: 8px 0 20px;
+    border: 1px solid var(--purple);
+    padding: 12px;
+}
+
+.gustos-picker summary {
+    cursor: pointer;
+}
+
+.gustos-picker p {
+    font-size: 14px;
+}
+
+.gustos-options {
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.gustos-picker .gustos-options label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.gustos-picker .gustos-options input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    padding: 0;
+    flex: 0 0 auto;
+}

@@ -1,0 +1,100 @@
+{% load static comment_permissions %}
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ story.display_title }} | TintaEterna</title>
+    <script src="{% static 'pages/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}" />
+    <link rel="stylesheet" href="{% static 'pages/reader.css' %}" />
+    <script type="module" src="{% static 'pages/reader.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
+    <script src="{% static 'pages/account-menu.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'pages/guest-actions.css' %}">
+  <link rel="stylesheet" href="{% static 'pages/comment-delete.css' %}">
+  <link rel="stylesheet" href="{% static 'pages/profile-revamp.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/reader-comments.css' %}">
+  </head>
+  <body>
+    <header>
+      <a href="{% url 'pages:work_detail' story.id %}">Volver</a>
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Cambiar tema"
+        aria-pressed="false"
+      >
+        Modo Claro
+      </button>
+      <a href="{% url 'pages:reader_file' story.id %}">Descargar</a>
+
+      {% if user.is_authenticated %}
+        {% include 'pages/account_menu.html' %}
+      {% else %}
+        {% include 'pages/guest_actions.html' %}
+      {% endif %}
+    </header>
+    <main
+      id="reader"
+      data-format="{{ format }}"
+      data-url="{% url 'pages:reader_file' story.id %}"
+    >
+      <h1>{{ story.display_title }}</h1>
+      <p><a href="{% url 'pages:profile' story.owner_id %}">{{ story.owner.username }}</a></p>
+      {% if user.is_authenticated %}
+      <form id="bookmark-form" action="{% url 'pages:save_bookmark' story.id %}" method="post">
+        {% csrf_token %}
+        <button id="save-bookmark" type="submit" disabled>Guardar marcador</button>
+        <a href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
+      </form>
+      <p id="bookmark-status" role="status"></p>
+      {% else %}
+      <p><a href="{% url 'pages:login' %}?next={{ request.path|urlencode }}">Ingresa para guardar un marcador</a></p>
+      {% endif %}
+      {{ saved_location|json_script:"saved-location" }}
+      <p id="status" role="status">Cargando…</p>
+      <nav aria-label="Lectura">
+        <button id="previous" disabled>Anterior</button>
+        <span id="position" aria-live="polite"></span>
+        <button id="next" disabled>Siguiente</button>
+      </nav>
+      <div id="book" aria-label="Contenido del escrito"></div>
+
+      <section id="comentarios" class="public-profile profile-comments reader-comments" aria-labelledby="reader-comments-title">
+        <h2 id="reader-comments-title">Comentarios</h2>
+        <ol class="comment-list">
+          {% for c in comentarios %}
+          <li id="comment-{{ c.pk }}"><article class="profile-comment">
+            <div class="comment-author">
+              {% if c.author.profile.avatar %}
+              <img src="{% url 'pages:profile_picture' c.author_id %}" alt="Foto de {{ c.author.username }}" width="48" height="48">
+              {% else %}<span class="comment-avatar-placeholder">{{ c.nombre|first|upper }}</span>{% endif %}
+              {% if c.author and c.author.is_active %}
+              <a href="{% url 'pages:profile' c.author_id %}">{{ c.author.first_name|default:c.author.username }}</a>
+              {% else %}<span>{{ c.nombre }}</span>{% endif %}
+            </div>
+            <time datetime="{{ c.fecha|date:'c' }}">{{ c.fecha|date:'d/m/Y H:i' }}</time>
+            <div class="comment-text">{{ c.texto|linebreaksbr }}</div>
+            {% if user|can_delete_comment:c %}
+            <form method="post" action="{% url 'pages:delete_reader_comment' c.pk %}" class="comment-delete-form">
+              {% csrf_token %}<button type="submit" class="comment-delete-button">Eliminar comentario</button>
+            </form>
+            {% endif %}
+          </article></li>
+          {% empty %}<li class="empty-comments">Aún no hay comentarios.</li>{% endfor %}
+        </ol>
+        {% if user.is_authenticated %}
+        <form id="comment-form" method="post">
+          {% csrf_token %}
+          <label for="texto">Comentario</label>
+          <textarea id="texto" name="texto" rows="4" required></textarea>
+          <button type="submit" id="agregar">Publicar comentario</button>
+        </form>
+        {% else %}
+        <p class="comment-login"><a href="{% url 'pages:login' %}?next={{ request.path|urlencode }}">Inicia sesión para comentar</a></p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>

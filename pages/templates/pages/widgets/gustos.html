@@ -1,0 +1,8 @@
+<details class="gustos-picker"{% if widget.attrs.aria_invalid %} open{% endif %}>
+<summary>Seleccionar gustos</summary>
+<p>Solo tú puedes ver esta selección. Sin gustos, las recomendaciones serán aleatorias.</p>
+<div class="gustos-options">
+{% include 'django/forms/widgets/checkbox_select.html' %}
+{% if not widget.optgroups %}<p>Aún no hay tags disponibles.</p>{% endif %}
+</div>
+</details>

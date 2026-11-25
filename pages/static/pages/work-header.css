@@ -1,0 +1,57 @@
+body > header.work-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px 32px;
+}
+body > header.work-header > .work-back-button,
+body > header.work-header > button,
+body > header.work-header .account-menu > summary,
+body > header.work-header .guest-actions .guest-button {
+    box-sizing: border-box;
+    font: 18px/1.5 Arial, sans-serif;
+    padding: 13px 20.8px;
+    border: 1px solid var(--purple);
+    border-radius: 0;
+    background: transparent;
+    color: var(--page-text);
+    text-decoration: none;
+    cursor: pointer;
+    margin-top: 0;
+    margin-bottom: 0;
+    transform: none;
+}
+body > header.work-header > .account-menu {
+    position: relative;
+    margin: 0 0 0 auto;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    transform: none;
+    align-self: center;
+    order: 99;
+}
+body > header.work-header .account-menu-panel {
+    top: calc(100% + 6px);
+    right: 0;
+    left: auto;
+}
+
+body > header.work-header .account-menu-panel a {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    text-decoration: none;
+    font: 16px/1.5 Arial, sans-serif;
+    padding: 10px;
+}
+body > header.work-header .account-menu-panel a::before,
+body > header.work-header .account-menu-panel a::after { content: none; }
+body > header.work-header > .work-back-button:hover,
+body > header.work-header > button:hover,
+body > header.work-header .account-menu > summary:hover { background: var(--upload-hover); }
+@media (max-width: 600px) {
+    body > header.work-header { padding: 16px 20px; }
+}

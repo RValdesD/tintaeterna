@@ -1,3 +1,4 @@
+
 const searchForm = document.querySelector("#search-form");
 const searchInput = document.querySelector("#story-search");
 const cards = document.querySelectorAll(".story-card");
@@ -8,10 +9,28 @@ const noResults = document.querySelector("#no-results");
 const tagDropdown = document.querySelector("#tag-dropdown");
 const tagCheckboxes = document.querySelectorAll(".tag-checkbox");
 
-// Native details supports keyboard and touch without a custom focus menu.
+/**
+ * Cierra el menú desplegable de etiquetas cuando se hace clic fuera de él.
+ *
+ * Comprueba si el elemento seleccionado pertenece al menú desplegable.
+ * Si el clic ocurre fuera de este, modifica su estado para cerrarlo.
+ *
+ * @param {MouseEvent} event - Evento de clic en el documento.
+ * @returns {void}
+ */
 document.addEventListener("click", (event) => {
     if (!tagDropdown.contains(event.target)) tagDropdown.open = false;
 });
+
+/**
+ * Permite cerrar el menú de etiquetas mediante el teclado.
+ *
+ * Detecta si el usuario presiona la tecla Escape y, en ese caso,
+ * cierra el menú desplegable y devuelve el foco a su elemento summary.
+ *
+ * @param {KeyboardEvent} event - Evento de pulsación de tecla.
+ * @returns {void}
+ */
 tagDropdown.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
         tagDropdown.open = false;
@@ -19,6 +38,28 @@ tagDropdown.addEventListener("keydown", (event) => {
     }
 });
 
+/**
+ * Filtra las historias según el texto de búsqueda y las etiquetas seleccionadas.
+ *
+ * Obtiene el texto ingresado por el usuario y lo normaliza eliminando
+ * espacios al inicio y al final y convirtiéndolo a minúsculas.
+ *
+ * También obtiene las etiquetas seleccionadas y actualiza su contador.
+ * Una historia se muestra únicamente cuando coincide con el texto
+ * buscado y contiene al menos una de las etiquetas seleccionadas.
+ *
+ * Si no se seleccionan etiquetas, el filtrado se realiza solamente
+ * mediante el texto de búsqueda.
+ *
+ * Oculta las historias que no cumplen los criterios y las secciones
+ * que no contienen historias visibles. Si no existen coincidencias,
+ * muestra el mensaje correspondiente.
+ *
+ * @returns {void}
+ *
+ * @example
+ * filterStories();
+ */
 function filterStories() {
     const query = searchInput.value.trim().toLowerCase();
     
@@ -34,7 +75,6 @@ function filterStories() {
         const textMatches = card.dataset.search
             .toLowerCase()
             .includes(query);
-
 
         const cardTags = (card.dataset.tags || "").trim().split(/\s+/);
         const tagMatches = selectedTags.length === 0 || selectedTags.some(tag => cardTags.includes(tag));
@@ -59,11 +99,38 @@ function filterStories() {
     noResults.hidden = visibleCount > 0;
 }
 
+/**
+ * Procesa el envío del formulario de búsqueda de historias.
+ *
+ * Evita el comportamiento predeterminado del formulario
+ * y ejecuta el filtrado utilizando los criterios actuales.
+ *
+ * @param {SubmitEvent} event - Evento de envío del formulario.
+ * @returns {void}
+ */
 searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
     filterStories();
 });
 
+/**
+ * Actualiza los resultados de búsqueda mientras el usuario escribe.
+ *
+ * Ejecuta el filtrado cada vez que cambia el contenido
+ * del campo de búsqueda.
+ *
+ * @returns {void}
+ */
 searchInput.addEventListener("input", filterStories);
+
+/**
+ * Actualiza los resultados cuando cambia la selección de etiquetas.
+ *
+ * Asocia el evento change a cada casilla de selección para
+ * aplicar inmediatamente los filtros cuando el usuario
+ * marca o desmarca una etiqueta.
+ *
+ * @returns {void}
+ */
 // Filtrar instantáneamente cada vez que el usuario marca o desmarca un tag
 tagCheckboxes.forEach(cb => cb.addEventListener("change", filterStories));

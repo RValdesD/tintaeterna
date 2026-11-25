@@ -8,25 +8,27 @@
     <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
 
     <script src="{% static 'pages/theme.js' %}"></script>
-    <script src="{% static 'pages/home.js' %}" defer></script>
+    {% if catalog != "recent" %}<script src="{% static 'pages/home.js' %}" defer></script>{% endif %}
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TintaEterna</title>
+    <title>{% if page_title %}{{ page_title }} | {% endif %}TintaEterna</title>
 
   <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
     <script src="{% static 'pages/account-menu.js' %}" defer></script>
   
+    <link rel="stylesheet" href="{% static 'pages/catalog.css' %}">
   </head>
 
   <body>
     <header class="site-header">
       <div class="header-inner">
-        <h1 class="site-title">TintaEterna</h1>
+        <h1 class="site-title"><a href="{% url 'pages:home' %}">TintaEterna</a></h1>
         <div class="header-actions">
-          <form id="search-form" role="search" style="position: relative;">
+          <form id="search-form" role="search" method="get" {% if catalog == "recent" %}action="{% url 'pages:recent' %}"{% endif %} style="position: relative;">
             <input
               id="story-search"
+              name="q" value="{{ query }}"
               type="search"
               placeholder="Busqueda por autor / obra"
               aria-label="Busqueda autor / obra"
@@ -41,7 +43,7 @@
               <div class="tags-grid">
                 {% for tag in tags %}
                 <label>
-                  <input type="checkbox" class="tag-checkbox" value="{{ tag.id }}">
+                  <input type="checkbox" class="tag-checkbox" name="tag" value="{{ tag.id }}" {% if tag.id in selected_tags %}checked{% endif %}>
                   {{ tag.name }}
                 </label>
                 {% endfor %}
@@ -50,6 +52,10 @@
             </details>
           </form>
 
+        <nav class="catalog-nav" aria-label="Explorar obras">
+            <a href="{% url 'pages:recent' %}" {% if catalog == "recent" %}aria-current="page"{% endif %}>Recién Agregados</a>
+            <a href="{% url 'pages:popular' %}" {% if catalog == "popular" %}aria-current="page"{% endif %}>Popular</a>
+        </nav>
         <nav aria-label="Account">
             {% if user.is_authenticated %}
                 {% include 'pages/account_menu.html' %}
@@ -67,6 +73,7 @@
                     class="logout-form"
                     method="post"
                     action="{% url 'pages:logout' %}"
+                    onsubmit="return confirm('¿Estás seguro de que quieres cerrar sesión?');"
                 >
                     {% csrf_token %}
                     <button type="submit">Cerrar sesión</button>
@@ -94,11 +101,17 @@
       </div>
     </header>
 
-    <main class="homepage">
+    <main class="homepage{% if catalog %} catalog-page{% endif %}">
       <div class="stories">
         {% for section in sections %}
         <section class="story-section">
           <h2>{{ section.title }}</h2>
+          {% if catalog == "popular" %}
+          <label class="period-filter">Período
+            <select aria-describedby="period-note"><option>Día</option><option>Mes</option><option>Año</option><option selected>Todo el tiempo</option></select>
+          </label>
+          <small id="period-note">Filtro próximamente disponible.</small>
+          {% endif %}
 
           <div class="story-grid">
             {% for story in section.stories %}
@@ -121,17 +134,18 @@
               </p>
               <p class="author"><a href="{{ story.profile_url }}">{{ story.author }}</a></p>
             </article>
-            {% endfor %}
+            {% empty %}<p>No hay obras para mostrar.</p>{% endfor %}
           </div>
         </section>
         {% endfor %}
 
+        {% if page_obj %}{% include 'pages/pagination.html' %}{% endif %}
         <p id="no-results" role="status" hidden>
           No se encontro la obra solicitada.
         </p>
       </div>
 
-    <aside class="upload-column" aria-label="Publicación">
+    {% if not catalog %}<aside class="upload-column" aria-label="Publicación">
         <a class="upload-button" href="{% url 'pages:upload' %}">
             Subir Escrito
         </a>
@@ -162,7 +176,7 @@
                 </div>
 
                 <p id="upload-status" role="status"></p>
-                <button type="submit">Subir archivo</button>
+                <button type="submit" class="upload-submit">Subir archivo</button>
             </form>
         {% else %}
             <div class="upload-area">
@@ -171,7 +185,7 @@
                 </a>
             </div>
         {% endif %}
-    </aside>
+    </aside>{% endif %}
     </main>
   </body>
 </html>

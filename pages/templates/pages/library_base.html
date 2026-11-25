@@ -7,7 +7,10 @@
 <link rel="stylesheet" href="{% static 'pages/reader.css' %}">
 <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
 <script src="{% static 'pages/account-menu.js' %}" defer></script>
-</head><body><header><a href="{% url 'pages:home' %}">Volver</a>
+{% block extra_head %}{% endblock %}
+<link rel="stylesheet" href="{% static 'pages/guest-actions.css' %}">
+</head><body><header><button type="button" onclick="window.location.href='{% url 'pages:home' %}'">Volver</button>
 <button id="theme-toggle" type="button" aria-pressed="false">Light mode</button>
 {% include 'pages/account_menu.html' %}
-</header><main>{% block content %}{% endblock %}</main></body></html>
+{% include 'pages/guest_actions.html' %}
+</header><main class="{% block main_class %}{% endblock %}">{% block content %}{% endblock %}</main></body></html>

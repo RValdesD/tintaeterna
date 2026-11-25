@@ -1,0 +1,25 @@
+/* Shared profile styles supply typography, avatars, borders and numbering. */
+#comentarios.reader-comments {
+    margin-top: 32px;
+    padding: 24px;
+    border: 1px solid var(--outline);
+}
+#comentarios .comment-list,
+#comentarios #comment-form,
+#comentarios .comment-login {
+    width: 100%;
+    max-width: 960px; /* Change this to adjust the centered comment area. */
+    margin-inline: auto;
+}
+#comentarios .profile-comment { min-width: 0; }
+#comentarios .comment-author { overflow-wrap: anywhere; }
+#comentarios .comment-author img,
+#comentarios .comment-avatar-placeholder { flex-shrink: 0; }
+#comentarios #comment-form textarea { display: block; resize: vertical; margin-bottom: 12px; }
+/* Keep reader delete controls below the text, including multiline comments. */
+#comentarios form.comment-delete-form { margin-bottom: 0; }
+#comentarios form.comment-delete-form button.comment-delete-button { top: 0; }
+@media (max-width: 650px) {
+    #comentarios.reader-comments { padding: 16px; }
+    #comentarios #comment-form { padding: 16px; }
+}

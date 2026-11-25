@@ -1,0 +1,254 @@
+main.public-profile {
+  max-width: none;
+  width: calc(100% - 40px);
+  margin: 24px auto;
+  padding: 0;
+}
+.public-profile section {
+  border: 1px solid var(--outline);
+  padding: 32px;
+}
+.profile-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 360px;
+}
+.profile-banner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+.profile-intro {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+  padding: 32px 0;
+}
+.profile-identity {
+  text-align: center;
+  background: var(--page-background);
+  padding: 16px;
+}
+.profile-avatar {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--outline);
+}
+.avatar-placeholder {
+  display: grid;
+  place-items: center;
+  font-size: 64px;
+}
+.profile-identity h1 {
+  margin: 16px 0 8px;
+  font-size: 24px;
+}
+.profile-about {
+  background: var(--page-background);
+  border: 1px solid var(--outline);
+  padding: 20px;
+}
+.profile-about[open] {
+  min-height: 260px;
+}
+.profile-about summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+.bbcode {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 20px;
+}
+.bbcode blockquote {
+  margin: 12px 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--purple);
+}
+.bbcode code {
+  background: var(--upload-hover);
+  padding: 2px 4px;
+}
+.published-works li {
+  margin: 12px 0;
+}
+.comment-list,
+#comment-form,
+.comment-pagination,
+.comment-login {
+  max-width: 960px;
+  margin: 28px auto;
+}
+.comment-list {
+  padding-left: 32px;
+}
+.comment-list > li {
+  padding-left: 10px;
+  margin-bottom: 24px;
+}
+.public-profile .profile-comment {
+  border: 1px solid var(--outline);
+  height: 240px;
+  padding: 24px;
+}
+
+.profile-comment > a.profile-action {
+    position: relative;
+    top: 10px;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: bold;
+}
+.comment-author img,
+.comment-avatar-placeholder {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+}
+.comment-avatar-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--upload-hover);
+}
+
+.profile-comment time {
+  display: block;
+  margin: 12px 0;
+  color: var(--secondary-text);
+  font-size: 14px;
+}
+
+.comment-text {
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  margin: 16px 0;
+}
+
+.reply-context {
+  border-left: 2px solid var(--purple);
+  padding-left: 12px;
+  overflow-wrap: anywhere;
+}
+
+.profile-action {
+  display: inline-block;
+  border: 1px solid var(--purple);
+  padding: 8px 14px;
+  text-decoration: none;
+  color: var(--page-text);
+}
+
+.profile-action:hover {
+  background: var(--upload-hover);
+}
+
+#comment-form textarea,
+.account-settings textarea {
+  width: 100%;
+  font: inherit;
+  padding: 12px;
+  background: var(--page-background);
+  color: var(--page-text);
+  border: 1px solid var(--outline);
+}
+.account-settings {
+  max-width: 800px;
+}
+.account-settings form p {
+  overflow-wrap: anywhere;
+}
+.account-settings label {
+  display: block;
+  margin-bottom: 8px;
+}
+.empty-comments {
+  list-style: none;
+}
+.comment-pagination {
+  justify-content: center;
+}
+@media (max-width: 650px) {
+  main.public-profile {
+    width: calc(100% - 24px);
+  }
+  .public-profile section {
+    padding: 16px;
+  }
+  .profile-intro {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .profile-identity {
+    width: 200px;
+    margin: auto;
+  }
+  .public-profile .profile-comment {
+    padding: 16px;
+  }
+}
+
+.public-profile > section + section {
+  margin-top: 24px;
+}
+.public-profile .profile-comments {
+  min-height: 300px;
+}
+.public-profile .comment-list {
+  list-style-type: decimal;
+}
+.public-profile .comment-list > li::marker {
+  color: var(--secondary-text);
+  font-variant-numeric: tabular-nums;
+}
+.public-profile #comment-form {
+  padding: 24px;
+  border: 1px solid var(--outline);
+}
+.public-profile #comment-form label {
+  display: block;
+  margin-bottom: 10px;
+}
+.public-profile .profile-comment {
+  scroll-margin-top: 24px;
+}
+
+.profile-name {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+}
+
+.profile-settings-gear {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--purple);
+}
+
+.profile-settings-gear img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.profile-settings-gear:hover {
+    background: var(--upload-hover);
+}

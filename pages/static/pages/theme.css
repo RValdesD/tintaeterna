@@ -21,11 +21,32 @@
 :root[data-theme="light"] {
     color-scheme: light;
 
-    --page-background: var(--white);
-    --page-text: #171219;
-    --accent: #805600;
-    --secondary-text: #94375f;
-    --outline: #171219;
-    --input-placeholder: #665d6b;
-    --upload-hover: #f9ecd2;
+    --page-background: #fff5e4;
+    --page-text: #4d2000;
+
+    --accent: #70458a;
+    --secondary-text: #795c48;
+    --outline: #b9a58b;
+    --input-placeholder: #796957;
+    --upload-hover: #f2e4cb;
+
+    --purple: #70458a;
+    --gold: #b4812e;
+    --pink: #955e75;
+}
+
+#theme-toggle {
+    box-sizing: border-box;
+    width: 136px;
+    min-width: 136px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+body > header:not(.site-header) #theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 10rem;
 }

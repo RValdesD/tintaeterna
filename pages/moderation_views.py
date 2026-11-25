@@ -1,3 +1,4 @@
+
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -12,6 +13,8 @@ from .moderation import moderator_required
 
 
 class ActionForm(forms.Form):
+    """Define los campos de motivo y confirmación para una acción de moderación."""
+
     reason = forms.CharField(max_length=1000, strip=True)
     confirm = forms.BooleanField(required=True)
 
@@ -19,6 +22,7 @@ class ActionForm(forms.Form):
 @moderator_required
 @require_GET
 def dashboard(request):
+    """Muestra el panel de moderación con listados paginados de obras y cuentas de usuario."""
     return render(request, "pages/moderation_dashboard.html", {
         "works": Paginator(StoryUpload.objects.select_related("owner").order_by("-uploaded_at"), 25).get_page(request.GET.get("works_page")),
         "accounts": Paginator(get_user_model().objects.select_related("moderation_account").order_by("username"), 25).get_page(request.GET.get("users_page")),
@@ -29,6 +33,7 @@ def dashboard(request):
 @require_POST
 @transaction.atomic
 def action(request, kind, target_id):
+    """Ejecuta acciones de moderación sobre obras o cuentas, validando permisos y registrando los resultados."""
     if kind not in {"remove", "warn", "ban", "silence", "unsilence"}:
         raise PermissionDenied
     form = ActionForm(request.POST)
@@ -64,6 +69,7 @@ def action(request, kind, target_id):
 @login_required
 @require_GET
 def notices(request):
+    """Muestra las notificaciones de moderación del usuario autenticado, ordenadas de la más reciente a la más antigua."""
     return render(request, "pages/moderation_notices.html", {
         "notices": request.user.moderation_notices.order_by("-created_at"),
     })

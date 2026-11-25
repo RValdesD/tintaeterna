@@ -2,7 +2,7 @@
 body { margin: 0; background: var(--page-background); color: var(--page-text); font-family: Arial, sans-serif; }
 header, nav { display: flex; align-items: center; gap: 16px; padding: 16px; flex-wrap: wrap; }
 a { color: var(--accent); }
-button { font: inherit; padding: 8px 14px; color: var(--page-text); background: transparent; border: 1px solid var(--purple); cursor: pointer; }
+button { font: inherit; padding: 10px 16px; color: var(--page-text); background: transparent; border: 1px solid var(--purple); cursor: pointer; }
 button:disabled { opacity: .4; cursor: default; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 main { max-width: 1000px; margin: auto; padding: 16px; }
@@ -35,4 +35,13 @@ html {
 }
 .comment-input {
     height: 30px;
+}
+
+body > header:not(.site-header) button,
+body > header:not(.site-header) .guest-actions .guest-button,
+body > header:not(.site-header) .account-menu > summary {
+    font-size: 20.8px;
+    padding: 13px 20.8px;
+    line-height: 1.5;
+    border-radius: 0;
 }

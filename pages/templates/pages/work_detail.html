@@ -1,27 +1,70 @@
 {% load static %}
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ title }} | TintaEterna</title>
-<script src="{% static 'pages/theme.js' %}"></script>
-<link rel="stylesheet" href="{% static 'pages/theme.css' %}">
-<link rel="stylesheet" href="{% static 'pages/work-detail.css' %}">
-{% if story %}<script type="module" src="{% static 'pages/work-toc.js' %}"></script>{% endif %}
-</head>
-<body>
-<header><a href="{% url 'pages:home' %}">Volver</a><button id="theme-toggle" type="button" aria-pressed="false">Light mode</button></header>
-<main>
-<h1>{{ title }}</h1>
-{% if description %}<div class="work-description">{{ description|linebreaksbr }}</div>{% endif %}
-{% if story %}
-<section id="work-toc" data-format="{{ format }}" data-file="{% url 'pages:reader_file' story.id %}" data-reader="{% url 'pages:reader' story.id %}" aria-label="Tabla de contenidos">
-<p id="toc-status" role="status">Cargando índice…</p>
-<ul id="toc-list"></ul>
-<p><a href="{% url 'pages:reader' story.id %}">Continuar lectura</a></p>
-</section>
-{% else %}
-<p class="sample-note">Esta obra de ejemplo aún no tiene capítulos disponibles.</p>
-{% endif %}
-</main>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }} | TintaEterna</title>
+    <script src="{% static 'pages/theme.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'pages/theme.css' %}" />
+    <link rel="stylesheet" href="{% static 'pages/work-detail.css' %}" />
+    <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'pages/guest-actions.css' %}">
+    <script src="{% static 'pages/account-menu.js' %}" defer></script>
+
+    {% if story.file and not story.chapters.exists %}
+    <script type="module" src="{% static 'pages/work-toc.js' %}"></script>
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'pages/work-header.css' %}" />
+    <link rel="stylesheet" href="{% static 'pages/work-owner-link.css' %}" />
+  </head>
+  <body>
+    <header class="work-header">
+      <a class="work-back-button" href="{% url 'pages:home' %}">Volver</a>
+      <button id="theme-toggle" type="button" aria-pressed="false">Modo Claro</button>
+      {% if user.is_authenticated %}
+        <div class="work-account-actions">
+          {% include 'pages/account_menu.html' %}
+          {% if story and user == story.owner %}
+          <a class="work-owner-edit" href="{% url 'pages:edit_story' story.pk %}">Editar / Subir archivo</a>
+          {% endif %}
+        </div>
+      {% else %}
+        {% include 'pages/guest_actions.html' %}
+      {% endif %}
+    </header>
+    <main>
+      <h1>{{ title }}</h1>
+      {% if description %}
+      <div class="work-description">{{ description|linebreaksbr }}</div>
+      {% endif %} {% if story.file %}
+      {% if story.chapters.exists %}
+      <section id="manual-toc" aria-label="Tabla de contenidos">
+        <ul id="toc-list">
+          {% for chapter in story.chapters.all %}
+          <li><a href="{% url 'pages:reader' story.pk %}?page={{ chapter.start_page }}">{{ chapter.title }}</a> <small>(págs. {{ chapter.start_page }}–{{ chapter.end_page }})</small></li>
+          {% endfor %}
+        </ul>
+        <p><a href="{% url 'pages:reader' story.pk %}">Continuar lectura</a></p>
+      </section>
+      {% else %}
+      <section
+        id="work-toc"
+        data-format="{{ format }}"
+        data-file="{% url 'pages:reader_file' story.id %}"
+        data-reader="{% url 'pages:reader' story.id %}"
+        aria-label="Tabla de contenidos"
+      >
+        <p id="toc-status" role="status">Cargando índice…</p>
+        <ul id="toc-list"></ul>
+        <p><a href="{% url 'pages:reader' story.id %}">Continuar lectura</a></p>
+      </section>
+      {% endif %}
+      {% else %}
+      <p class="sample-note">
+        Esta obra aún no tiene contenido.
+      </p>
+      {% endif %}
+    </main>
+  </body>
+</html>
