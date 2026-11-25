@@ -19,8 +19,16 @@ tagDropdown.addEventListener("keydown", (event) => {
     }
 });
 
+function normalizeText(text) {
+    return String(text ?? "")
+        .normalize("NFD")
+        .replace(/\p{M}/gu, "")
+        .toLowerCase();
+
+}
+
 function filterStories() {
-    const query = searchInput.value.trim().toLowerCase();
+    const terms = normalizeText(searchInput.value).split(/\s+/).filter(Boolean);
     
     // Obtener los valores de los tags que el usuario haya seleccionado
     const selectedTags = Array.from(tagCheckboxes)
@@ -31,11 +39,8 @@ function filterStories() {
     let visibleCount = 0;
 
     cards.forEach((card) => {
-        const textMatches = card.dataset.search
-            .toLowerCase()
-            .includes(query);
-
-
+        const text = normalizeText(card.dataset.search);
+        const textMatches = terms.every(term => text.includes(term));
         const cardTags = (card.dataset.tags || "").trim().split(/\s+/);
         const tagMatches = selectedTags.length === 0 || selectedTags.some(tag => cardTags.includes(tag));
 
