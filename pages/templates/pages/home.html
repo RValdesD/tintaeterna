@@ -16,6 +16,7 @@
 
   <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
     <script src="{% static 'pages/account-menu.js' %}" defer></script>
+  
   </head>
 
   <body>
@@ -107,7 +108,7 @@
               data-tags="{% for tag in story.tags.all %}{{ tag.id }} {% endfor %}"
               aria-label="{{ story.title }}"
             >
-              <a class="story-cover-link" href="{% if story.reader_url %}{{ story.reader_url }}{% else %}{{ story.profile_url }}{% endif %}" aria-label="Abrir {{ story.title }}">
+              <a class="story-cover-link" href="{{ story.work_url }}" aria-label="Abrir {{ story.title }}">
                 <div class="cover">
                   {% if story.cover_url %}<img src="{{ story.cover_url }}" alt="Portada de {{ story.title }}" loading="lazy">{% endif %}
                 </div>

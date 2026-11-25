@@ -1,0 +1,27 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} | TintaEterna</title>
+<script src="{% static 'pages/theme.js' %}"></script>
+<link rel="stylesheet" href="{% static 'pages/theme.css' %}">
+<link rel="stylesheet" href="{% static 'pages/work-detail.css' %}">
+{% if story %}<script type="module" src="{% static 'pages/work-toc.js' %}"></script>{% endif %}
+</head>
+<body>
+<header><a href="{% url 'pages:home' %}">Volver</a><button id="theme-toggle" type="button" aria-pressed="false">Light mode</button></header>
+<main>
+<h1>{{ title }}</h1>
+{% if description %}<div class="work-description">{{ description|linebreaksbr }}</div>{% endif %}
+{% if story %}
+<section id="work-toc" data-format="{{ format }}" data-file="{% url 'pages:reader_file' story.id %}" data-reader="{% url 'pages:reader' story.id %}" aria-label="Tabla de contenidos">
+<p id="toc-status" role="status">Cargando índice…</p>
+<ul id="toc-list"></ul>
+<p><a href="{% url 'pages:reader' story.id %}">Continuar lectura</a></p>
+</section>
+{% else %}
+<p class="sample-note">Esta obra de ejemplo aún no tiene capítulos disponibles.</p>
+{% endif %}
+</main>
+</body></html>

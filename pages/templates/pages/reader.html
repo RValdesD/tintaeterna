@@ -15,7 +15,7 @@
   <body>
     <header>
       {% include 'pages/account_menu.html' %}
-      <a href="{% url 'pages:home' %}">Volver</a>
+      <a href="{% url 'pages:work_detail' story.id %}">Volver</a>
       <button
         id="theme-toggle"
         type="button"

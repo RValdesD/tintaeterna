@@ -1,3 +1,4 @@
+import { textSections } from "./text-sections.js";
 const root = document.getElementById("reader");
 const area = document.getElementById("book");
 const status = document.getElementById("status");
@@ -8,6 +9,10 @@ const bookmarkForm = document.getElementById("bookmark-form");
 const saveButton = document.getElementById("save-bookmark");
 const bookmarkStatus = document.getElementById("bookmark-status");
 const savedLocation = JSON.parse(document.getElementById("saved-location").textContent);
+const navigation = new URLSearchParams(window.location.search);
+const requestedPage = navigation.get("page");
+const pageStart = requestedPage && /^[1-9][0-9]{0,6}$/.test(requestedPage) ? Number(requestedPage) : Number(savedLocation) || 1;
+const requestedChapter = navigation.get("chapter");
 let page = 1, total = 1, busy = false, draw, rendition;
 let currentLocation = "", saving = false;
 
@@ -94,27 +99,16 @@ try {
             await current.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
             canvas.setAttribute("aria-label", `Página ${page}`);
         };
-        page = Math.max(1, Math.min(total, Number(savedLocation) || 1));
+        page = Math.max(1, Math.min(total, pageStart));
         await move(0);
     } else if (root.dataset.format === "txt") {
         const text = new TextDecoder("utf-8", { fatal: true }).decode(data);
-        // Stable sections; avoid splitting a word when possible.
-        const sections = [];
-        let start = 0;
-        while (start < text.length) {
-            let end = Math.min(start + 3000, text.length);
-            if (end < text.length) {
-                const space = text.lastIndexOf(" ", end);
-                if (space > start + 1500) end = space + 1;
-            }
-            sections.push(text.slice(start, end));
-            start = end;
-        }
+        const sections = textSections(text);
         total = Math.max(1, sections.length);
         const content = document.createElement("pre");
         area.append(content);
         draw = async () => { content.textContent = sections[page - 1] || ""; };
-        page = Math.max(1, Math.min(total, Number(savedLocation) || 1));
+        page = Math.max(1, Math.min(total, pageStart));
         await move(0);
     } else {
         await loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");
@@ -133,10 +127,21 @@ try {
             position.textContent = `Sección ${location.start.index + 1}`;
             controls();
         });
+        await book.loaded.navigation;
+        let chapterTarget;
+        if (requestedChapter !== null && /^[0-9]{1,6}$/.test(requestedChapter)) {
+            const chapters = [];
+            const visit = (items) => items.forEach(item => {
+                chapters.push(item.href);
+                visit(item.subitems || []);
+            });
+            visit(book.navigation.toc);
+            chapterTarget = chapters[Number(requestedChapter)];
+        }
         try {
-            await rendition.display(savedLocation || undefined);
+            await rendition.display(chapterTarget || savedLocation || undefined);
         } catch (error) {
-            if (!savedLocation) throw error;
+            if (!savedLocation && !chapterTarget) throw error;
             await rendition.display();
             if (bookmarkStatus) bookmarkStatus.textContent = "El marcador ya no es válido; se abrió el inicio.";
         }

@@ -108,8 +108,8 @@ class StoryUploadForm(forms.ModelForm):
 
     class Meta:
         model = StoryUpload
-        fields = ("title", "file", "cover", "tags")
-        labels = {"title": "Título (opcional)", "cover": "Portada (opcional)", "file": "Archivo",
+        fields = ("title", "description", "file", "cover", "tags")
+        labels = {"title": "Título (opcional)", "description": "Descripción (opcional)", "cover": "Portada (opcional)", "file": "Archivo",
                   "tags": "Tags (Opcional)"}
         widgets = {
             "file": forms.FileInput(attrs={
@@ -235,8 +235,8 @@ class ProfilePictureForm(forms.ModelForm):
 class StoryPresentationForm(forms.ModelForm):
     class Meta:
         model = StoryUpload
-        fields = ["title", "cover"]
-        labels = {"title": "Título", "cover": "Portada"}
+        fields = ["title", "description", "cover"]
+        labels = {"title": "Título", "description": "Descripción (opcional)", "cover": "Portada"}
         widgets = {"cover": forms.FileInput(attrs={"accept": "image/png,image/jpeg"})}
 
     def clean_cover(self):

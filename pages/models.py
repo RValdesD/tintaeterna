@@ -22,6 +22,7 @@ def cover_file_path(instance, filename):
 
 class StoryUpload(models.Model):
     title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(max_length=3000, blank=True)
     cover = models.ImageField(upload_to=cover_file_path, blank=True)
 
     @property

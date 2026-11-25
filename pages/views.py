@@ -73,7 +73,7 @@ def reader_file(request, upload_id):
 
 
 
-def home(request):
+def sample_stories():
     popular = [
         {
             "title": "Comment te dire Adieu",
@@ -136,7 +136,13 @@ def home(request):
         "Obra8": "obra8.jpg",
     }
 
-    for item in popular + recommended:
+    return popular, recommended, sample_covers
+
+
+def home(request):
+    popular, recommended, sample_covers = sample_stories()
+    for index, item in enumerate(popular + recommended, start=1):
+        item["work_url"] = reverse("pages:sample_work", args=[index])
         item["profile_url"] = reverse(
             "pages:demo_profile",
             args=[item["author"]],
@@ -159,6 +165,7 @@ def home(request):
             "author": item.owner.username,
             "profile_url": reverse("pages:profile", args=[item.owner_id]),
             "reader_url": reverse("pages:reader", args=[item.pk]),
+            "work_url": reverse("pages:work_detail", args=[item.pk]),
             "cover_url": reverse("pages:story_cover", args=[item.pk]) if item.cover else "",
             "tags": item.tags,
         }
@@ -427,3 +434,28 @@ def story_cover(request, upload_id):
     response["X-Content-Type-Options"] = "nosniff"
     response["Cache-Control"] = "no-cache"
     return response
+
+
+@require_GET
+def work_detail(request, upload_id):
+    story = readable_story(request, upload_id)
+    return render(request, "pages/work_detail.html", {
+        "title": story.display_title,
+        "description": story.description,
+        "story": story,
+        "format": Path(story.file.name).suffix.lower()[1:],
+    })
+
+
+@require_GET
+def sample_work(request, sample_id):
+    popular, recommended, _ = sample_stories()
+    works = popular + recommended
+    if not 1 <= sample_id <= len(works):
+        raise Http404("Obra no encontrada.")
+    work = works[sample_id - 1]
+    return render(request, "pages/work_detail.html", {
+        "title": work["title"],
+        "description": work.get("description", ""),
+        "sample": True,
+    })

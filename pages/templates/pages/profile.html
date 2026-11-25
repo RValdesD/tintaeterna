@@ -26,7 +26,7 @@
 <section><h2>Obras publicadas</h2>
 {% if demo %}<article><h3>{{ demo_title }}</h3><p>Vista previa de ejemplo · Sin archivo de lectura</p></article>{% endif %}
 {% for work in works %}<article>
-<h3><a href="{% url 'pages:reader' work.id %}">{{ work.display_title }}</a></h3>
+<h3><a href="{% url 'pages:work_detail' work.id %}">{{ work.display_title }}</a></h3>
 <p>{% for tag in work.tags.all %}{{ tag.name }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
 </article>{% empty %}{% if not demo %}<p>Aún no hay escritos publicados.</p>{% endif %}{% endfor %}
 </section>
