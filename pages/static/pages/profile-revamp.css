@@ -57,6 +57,9 @@ main.public-profile {
 }
 .profile-about[open] {
   min-height: 260px;
+  /* Match the image/name column when the description is short. */
+  align-self: stretch;
+  box-sizing: border-box;
 }
 .profile-about summary {
   cursor: pointer;

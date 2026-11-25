@@ -1,8 +1,4 @@
-"""Consolidated TintaEterna tests. Run with: python manage.py test pages.tests.
-
-Remove the original test_*.py modules listed below after installing this file
-to avoid discovering each test twice. Test assertions are preserved unchanged.
-"""
+"""Todos los tests van en un mismo py"""
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
@@ -24,7 +20,7 @@ from .views import sample_stories
 
 
 # ========================================================================
-# Originally: test_bookmarks.py
+# test_bookmarks.py
 # ========================================================================
 
 class ReaderFeaturesTests(TestCase):
@@ -100,7 +96,7 @@ class ReaderFeaturesTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_catalog.py
+# test_catalog.py
 # ========================================================================
 
 class CatalogTests(TestCase):
@@ -134,7 +130,7 @@ class CatalogTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_chapters.py
+# test_chapters.py
 # ========================================================================
 
 def pdf(pages=6):
@@ -205,7 +201,7 @@ class ChapterTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_comment_deletion.py
+# test_comment_deletion.py
 # ========================================================================
 
 class CommentDeletionTests(TestCase):
@@ -272,7 +268,7 @@ class CommentDeletionTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_gustos.py
+# test_gustos.py
 # ========================================================================
 
 class GustosTests(TestCase):
@@ -350,7 +346,7 @@ class GustosTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_login.py
+# test_login.py
 # ========================================================================
 
 class LoginRedirectTests(TestCase):
@@ -381,7 +377,7 @@ class LoginRedirectTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_moderation.py
+# test_moderation.py
 # ========================================================================
 
 class ModerationTests(TestCase):
@@ -464,7 +460,7 @@ class ModerationTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_profile_revamp.py
+# : test_profile_revamp.py
 # ========================================================================
 
 class ProfileRevampTests(TestCase):
@@ -525,7 +521,7 @@ class ProfileRevampTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_profiles.py
+# : test_profiles.py
 # ========================================================================
 
 class ProfileTests(TestCase):
@@ -602,7 +598,7 @@ class ProfileTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_sample_work_links.py
+# : test_sample_work_links.py
 # ========================================================================
 
 class SampleWorkTests(TestCase):
@@ -689,7 +685,7 @@ class SampleWorkTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_story_cards.py
+# : test_story_cards.py
 # ========================================================================
 
 class StoryCardTests(TestCase):
@@ -743,7 +739,7 @@ class StoryCardTests(TestCase):
 
 
 # ========================================================================
-# Originally: test_work_contents.py
+# : test_work_contents.py
 # ========================================================================
 
 class WorkContentsTests(TestCase):

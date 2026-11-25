@@ -91,7 +91,9 @@ body > header:not(.site-header) {
 body > header:not(.site-header) > .account-menu {
     position: relative;
     order: 99;
-    margin-left: 1500px;
+    margin-left: auto;
+    max-width: 100%;
+    min-width: 0;
     right: auto;
     top: auto;
     transform: none;
@@ -110,4 +112,15 @@ body > header:not(.site-header) .account-menu > summary {
     padding: 13px 20.8px;
     line-height: 1.5;
     border-radius: 0;
+}
+
+/* Keep long account names and the opened menu inside narrow headers. */
+body > header:not(.site-header) .account-menu > summary {
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+body > header:not(.site-header) .account-menu-panel {
+    box-sizing: border-box;
+    max-width: calc(100vw - 40px);
+    overflow-wrap: anywhere;
 }
