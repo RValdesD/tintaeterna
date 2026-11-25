@@ -30,3 +30,16 @@ class StoryUpload(models.Model):
 
     def __str__(self):
             return self.original_name
+        
+#clase comentario. id, fecha, nombre, texto, id_story
+class Comentarios(models.Model):
+    fecha= models.DateTimeField(auto_now_add=True)
+    nombre = models.CharField(max_length=100)
+    texto = models.TextField()
+    historia = models.ForeignKey(
+        'StoryUpload',
+        on_delete=models.CASCADE,
+        related_name='comentarios'
+    )
+    def __str__(self):
+        return f"{self.nombre} en {self.historia}"

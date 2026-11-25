@@ -36,6 +36,35 @@
         <button id="next" disabled>Siguiente</button>
       </nav>
       <div id="book" aria-label="Contenido del escrito"></div>
+      <section id="comentarios">
+      <h1>Comentarios</h1>
+      {% if user.is_authenticated %}
+        <form method="post">
+          {% csrf_token %}
+          <label for="texto">Comentario</label>
+          <input class="comment-input" type="text" id="texto" name="texto" required>
+          <button type="submit" id="agregar">Agregar comentario</button>
+        </form>
+      {% else %}
+      <p><strong>Registrate para comentar</strong></p>
+      <a class="login-link" href="{% url 'pages:login' %}">
+        Ingresar
+      </a>
+
+      <a class="login-link signup" href="{% url 'pages:signup' %}">
+        Crear Cuenta
+      </a>
+      {% endif %}
+      {% for c in comentarios %}
+      <p>
+        <strong>{{c.nombre}}</strong>
+        <small>({{ c.fecha|date:"d/m/Y H:i" }})</small>
+      </p>
+      <p>{{c.texto}}</p>
+      {% empty %}
+        <p>No hay comentarios</p>
+      {% endfor %}
+      </section>
     </main>
   </body>
 </html>
