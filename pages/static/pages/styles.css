@@ -113,6 +113,8 @@ main.homepage {
 
 .story-section {
     margin-bottom: 120px;
+    position: relative;
+    top: 20px;
 }
 
 h2 {
@@ -314,8 +316,8 @@ h1 {
 /* Story cards: cover image, title, rating, author. */
 main.homepage .story-grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(5, minmax(0, 0.8fr));
+    gap: 20px;
 }
 
 main.homepage .story-card {
@@ -324,14 +326,13 @@ main.homepage .story-card {
 
 .story-cover-link {
     display: block;
-    width: 180px;
+    width: 240px;
     max-width: 100%;
 }
 
 main.homepage .story-card .cover {
     position: relative;
-    width: 180px;
-    max-width: 100%;
+    width: 100%;
     height: auto;
     aspect-ratio: 2 / 3;
     border: 1px solid var(--outline);
@@ -383,4 +384,32 @@ main.homepage .story-card .author a {
     main.homepage .story-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+/* Black outlines in light mode, 1px thicker */
+:root[data-theme="light"] {
+    --outline: #000;
+}
+
+:root[data-theme="light"] .site-header {
+    border-bottom: 2px solid #000;
+}
+
+:root[data-theme="light"] main.homepage .story-card .cover,
+:root[data-theme="light"] button,
+:root[data-theme="light"] .login-link,
+:root[data-theme="light"] #story-search,
+:root[data-theme="light"] .tag-dropdown summary,
+:root[data-theme="light"] .tag-menu,
+:root[data-theme="light"] .account-menu summary,
+:root[data-theme="light"] .account-menu-panel {
+    border: 2px solid #000;
+}
+
+:root[data-theme="light"] .upload-area {
+    border: 3px dotted #000;
+}
+
+:root[data-theme="light"] .upload-area.is-dragging {
+    border-style: solid;
 }
