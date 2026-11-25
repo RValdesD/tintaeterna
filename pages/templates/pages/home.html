@@ -107,11 +107,7 @@
               data-tags="{% for tag in story.tags.all %}{{ tag.id }} {% endfor %}"
               aria-label="{{ story.title }}"
             >
-              <a href="{% if story.reader_url %}{{ story.reader_url }}{% else %}{{ story.profile_url }}{% endif %}" tabindex="-1" aria-hidden="true"><div class="cover" aria-hidden="true"></div></a>
-
-              <h3 class="story-title">
-                <a href="{% if story.reader_url %}{{ story.reader_url }}{% else %}{{ story.profile_url }}{% endif %}" title="{{ story.title }}">{{ story.title }}</a>
-              </h3>
+              <a href="{% if story.reader_url %}{{ story.reader_url }}{% else %}{{ story.profile_url }}{% endif %}" aria-label="{{ story.title }}"><div class="cover" aria-hidden="true"></div></a>
 
               <p class="author"><a href="{{ story.profile_url }}">{{ story.author }}</a></p>
 

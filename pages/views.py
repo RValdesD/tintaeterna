@@ -122,7 +122,7 @@ def home(request):
     for item in popular + recommended:
         item["profile_url"] = reverse("pages:demo_profile", args=[item["author"]])
     uploads = StoryUpload.objects.select_related("owner").prefetch_related("tags").order_by("-uploaded_at")
-    uploaded_cards = [{"title": Path(item.original_name).stem, "author": item.owner.username,
+    uploaded_cards = [{"title": item.original_name, "author": item.owner.username,
                        "profile_url": reverse("pages:profile", args=[item.owner_id]),
                        "reader_url": reverse("pages:reader", args=[item.pk]),
                        "tags": item.tags} for item in uploads]
