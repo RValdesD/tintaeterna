@@ -40,6 +40,7 @@ button:hover,
     border: 1px solid var(--purple);
     background: transparent;
     color: var(--page-text);
+    transform: translateX(5px);
     cursor: pointer;
 }
 
@@ -114,7 +115,7 @@ main.homepage {
 .story-section {
     margin-bottom: 120px;
     position: relative;
-    top: 20px;
+    top: 60px;
 }
 
 h2 {
@@ -184,7 +185,7 @@ h1 {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
-    transform: translateY(80px);
+    transform: translateY(60px);
 }
 
 .upload-button {
@@ -200,7 +201,9 @@ h1 {
 
 .upload-area {
     width: 100%;
-    min-height: 500px;
+    min-height: 365px;
+    min-width: 180px;
+    transform: translateX(20px);
     border: 2px dotted var(--accent);
     background: transparent;
 }
@@ -232,8 +235,11 @@ h1 {
     justify-content: center;
     align-items: center;
     gap: 16px;
+    width: 240px;
+    max-width: 100%;
     padding: 20px;
     text-align: center;
+    translateX
 }
 
 .upload-area.is-dragging {
@@ -318,6 +324,11 @@ main.homepage .story-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 0.8fr));
     gap: 20px;
+}
+
+.story-grid {
+    position: relative;
+    top: 15px;
 }
 
 main.homepage .story-card {
