@@ -6,14 +6,38 @@
     --pink: #efa8c4;
 }
 
+:root {
+    color-scheme: dark;
+
+    --page-background: var(--black);
+    --page-text: var(--white);
+    --accent: var(--gold);
+    --secondary-text: var(--pink);
+    --outline: var(--white);
+    --input-placeholder: #ffffff9c;
+    --upload-hover: #211b10;
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --page-background: var(--white);
+    --page-text: #171219;
+    --accent: #805600;
+    --secondary-text: #94375f;
+    --outline: #171219;
+    --input-placeholder: #665d6b;
+    --upload-hover: #f9ecd2;
+}
+
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    background: var(--black);
-    color: var(--white);
+    background: var(--page-background);
+    color: var(--page-text);
     font-family: Arial, sans-serif;
     line-height: 1.5;
 }
@@ -25,24 +49,40 @@ a {
 }
 
 a {
-    color: var(--gold);
+    color: var(--accent);
 }
 
 button {
     padding: 10px 16px;
     border: 1px solid var(--purple);
     background: transparent;
-    color: var(--white);
+    color: var(--page-text);
     cursor: pointer;
 }
 
 button:hover,
-.upload-button:hover {
+.upload-button:hover,
+.login-link:hover {
     opacity: 0.8;
 }
 
+.upload-button,
+.login-link {
+    padding: 10px 16px;
+    border: 1px solid var(--purple);
+    background: transparent;
+    color: var(--page-text);
+    cursor: pointer;
+}
+
+/* Apply on every screen size, not just mobile. */
+.login-link {
+    display: inline-block;
+    text-decoration: none;
+}
+
 :focus-visible {
-    outline: 2px solid var(--pink);
+    outline: 2px solid var(--secondary-text);
     outline-offset: 4px;
 }
 
@@ -59,15 +99,15 @@ button:hover,
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 500px;
 }
 
 #search-form {
     display: flex;
     flex: 1 1 300px;
+    min-width: 0;
     gap: 8px;
-    width: 360px;
-    max-width: 100%;
+    max-width: 600px;
 }
 
 #story-search {
@@ -75,12 +115,12 @@ button:hover,
     min-width: 0;
     padding: 10px;
     border: 1px solid var(--purple);
-    background: var(--black);
-    color: var(--white);
+    background: var(--page-background);
+    color: var(--page-text);
 }
 
 #story-search::placeholder {
-    color: #ffffff9c;
+    color: var(--input-placeholder);
 }
 
 nav {
@@ -90,8 +130,8 @@ nav {
 }
 
 .signup {
-    border-color: var(--pink);
-    color: var(--pink);
+    border-color: var(--secondary-text);
+    color: var(--secondary-text);
 }
 
 main.homepage {
@@ -125,23 +165,16 @@ h2 {
 }
 
 h1 {
-    color: #ffffff;
+    color: var(--page-text);
     font-family: 'Times New Roman', Times, serif;
     font-size: 30px;
     text-decoration: none;
 }
 
-.header-inner {
-    width: 100%;
-    padding: 24px 32px;
-
-    display: flex;
-    gap: 700px;
-}
-
 .site-title {
     margin: 0;
-    color: #ffffff;
+    color: var(--page-text);
+    text-decoration: none;
     font-family: 'Times New Roman', Times, serif;
     font-size: 42px;
     font-weight: bold;
@@ -153,41 +186,27 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex: 1;
+    flex: 1 1 600px;
     min-width: 0;
-    gap: 32px;
-    margin: 0;
-}
-
-#search-form {
-    display: flex;
-    flex: 0 1 600px;
-    min-width: 0;
-    gap: 8px;
-}
-
-.header-actions nav {
-    flex-shrink: 0;
-}
-.header-actions {
-    display: flex;
-    align-items: center;
     flex-wrap: wrap;
     gap: 20px;
     margin-left: auto;
     max-width: 100%;
 }
 
+.header-actions nav {
+    flex-shrink: 0;
+}
 .cover {
     width: 120px;
     max-width: 100%;
     aspect-ratio: 2 / 3;
-    border: 1px solid var(--white);
+    border: 1px solid var(--outline);
     background: transparent;
 }
 
 .upload-area:hover {
-    background: #211b10;
+    background: var(--upload-hover);
 }
 
 .author,
@@ -198,15 +217,15 @@ h1 {
 
 .author {
     margin-top: 12px;
-    color: var(--pink);
+    color: var(--secondary-text);
 }
 
 .rating {
-    color: var(--gold);
+    color: var(--accent);
 }
 
 .rating-total {
-    color: var(--white);
+    color: var(--page-text);
 }
 
 .upload-column {
@@ -231,7 +250,7 @@ h1 {
 .upload-area {
     width: 100%;
     min-height: 500px;
-    border: 2px dotted var(--gold);
+    border: 2px dotted var(--accent);
     background: transparent;
 }
 
@@ -253,4 +272,5 @@ h1 {
     .story-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));   
     }
+
 }
