@@ -172,14 +172,17 @@ def home(request):
     popular, recommended, sample_covers = sample_stories()
     from .sample_works import link_sample_cards
     link_sample_cards(popular, sample_covers)
-    from .recommendations import recommended_cards
-    recommended = recommended_cards(request.user)
+
+    sections = [{"title": "Popular: Esta Semana", "stories": popular}]
+    if request.user.is_authenticated:
+        from .recommendations import recommended_cards
+        sections.append({
+            "title": "Obras Recomendadas",
+            "stories": recommended_cards(request.user),
+        })
 
     return render(request, "pages/home.html", {
-        "sections": [
-            {"title": "Popular: Esta Semana", "stories": popular},
-            {"title": "Obras Recomendadas", "stories": recommended},
-        ],
+        "sections": sections,
         "tags": Tag.objects.order_by("name"),
     })
 
