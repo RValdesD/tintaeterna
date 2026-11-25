@@ -40,7 +40,12 @@
               Light mode
             </button>
             <a class="login-link" href="{% url 'pages:login' %}">Ingresar</a>
-            <button type="button" class="signup">Crear Cuenta</button>
+            <a
+                class="login-link signup"
+                href="{% url 'pages:signup' %}"
+            >
+                Crear Cuenta
+            </a>
           </nav>
         </div>
       </div>
