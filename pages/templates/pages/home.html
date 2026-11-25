@@ -1,7 +1,7 @@
 {% load static %}
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     {% load static %}
     <link rel="stylesheet" href="{% static 'pages/styles.css' %}" />
@@ -14,6 +14,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TintaEterna</title>
 
+  <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
+    <script src="{% static 'pages/account-menu.js' %}" defer></script>
   </head>
 
   <body>
@@ -31,24 +33,25 @@
             />
             <button type="submit">Buscar</button>
 
-            <div id="tag-dropdown" class="tag-menu hidden">
+            <details id="tag-dropdown" class="tag-dropdown">
+              <summary>Tags <span id="tag-count"></span></summary>
+              <div class="tag-menu">
               <p>Filtrar por tags (opcional):</p>
               <div class="tags-grid">
                 {% for tag in tags %}
                 <label>
-                  <input type="checkbox" class="tag-checkbox" value="{{ tag.name|lower }}">
+                  <input type="checkbox" class="tag-checkbox" value="{{ tag.id }}">
                   {{ tag.name }}
                 </label>
                 {% endfor %}
               </div>
-            </div>
+              </div>
+            </details>
           </form>
 
         <nav aria-label="Account">
             {% if user.is_authenticated %}
-                <span class="welcome-text">
-                    bienvenido {{ user.username }}
-                </span>
+                {% include 'pages/account_menu.html' %}
 
                 <button
                     type="button"
@@ -101,18 +104,18 @@
             <article
               class="story-card"
               data-search="{{ story.title }} {{ story.author }}"
-              data-tags="{% for tag in story.tags.all %}{{ tag.name|lower }} {% endfor %}"
+              data-tags="{% for tag in story.tags.all %}{{ tag.id }} {% endfor %}"
               aria-label="{{ story.title }}"
             >
-              <div class="cover" aria-hidden="true"></div>
+              <a href="{% if story.reader_url %}{{ story.reader_url }}{% else %}{{ story.profile_url }}{% endif %}" aria-label="{{ story.title }}"><div class="cover" aria-hidden="true"></div></a>
 
-              <p class="author">{{ story.author }}</p>
+              <p class="author"><a href="{{ story.profile_url }}">{{ story.author }}</a></p>
 
-              <p class="rating" aria-label="{{ story.rating }} out of 5 stars">
+              {% if story.rating %}<p class="rating" aria-label="{{ story.rating }} out of 5 stars">
                 <span aria-hidden="true">★</span>
                 {{ story.rating }}
                 <span class="rating-total">/ 5</span>
-              </p>
+              </p>{% endif %}
             </article>
             {% endfor %}
           </div>

@@ -60,11 +60,13 @@
             </div>
             
             <div class="field">
-                <label>{{ form.tags.label }}</label>
+                <details class="upload-tags" {% if form.tags.errors %}open{% endif %}>
+                <summary>{{ form.tags.label }} (opcional)</summary>
                 
                 <div class="tags-checkbox-list">
                     {{ form.tags }}
                 </div>
+                </details>
                 
                 {% if form.tags.errors %}
                     <div class="errors" role="alert">

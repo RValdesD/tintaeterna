@@ -1,0 +1,12 @@
+{% extends 'pages/library_base.html' %}
+{% block title %}Mis marcadores{% endblock %}
+{% block content %}<h1>Mis marcadores</h1>
+{% for bookmark in bookmarks %}<article>
+<h2><a href="{% url 'pages:reader' bookmark.story_id %}">{{ bookmark.story.original_name }}</a></h2>
+<p><a href="{% url 'pages:profile' bookmark.story.owner_id %}">{{ bookmark.story.owner.username }}</a></p>
+<p>Guardado: {{ bookmark.updated_at|date:"d/m/Y H:i" }}</p>
+<a href="{% url 'pages:reader' bookmark.story_id %}">Continuar lectura</a>
+<form method="post" action="{% url 'pages:delete_bookmark' bookmark.story_id %}">{% csrf_token %}
+<button type="submit">Eliminar marcador</button></form>
+</article>{% empty %}<p>Aún no tienes marcadores.</p>{% endfor %}
+{% endblock %}

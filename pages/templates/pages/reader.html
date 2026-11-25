@@ -9,9 +9,12 @@
     <link rel="stylesheet" href="{% static 'pages/theme.css' %}" />
     <link rel="stylesheet" href="{% static 'pages/reader.css' %}" />
     <script type="module" src="{% static 'pages/reader.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'pages/profile.css' %}">
+    <script src="{% static 'pages/account-menu.js' %}" defer></script>
   </head>
   <body>
     <header>
+      {% include 'pages/account_menu.html' %}
       <a href="{% url 'pages:home' %}">Volver</a>
       <button
         id="theme-toggle"
@@ -29,6 +32,18 @@
       data-url="{% url 'pages:reader_file' story.id %}"
     >
       <h1>{{ story.original_name }}</h1>
+      <p><a href="{% url 'pages:profile' story.owner_id %}">{{ story.owner.username }}</a></p>
+      {% if user.is_authenticated %}
+      <form id="bookmark-form" action="{% url 'pages:save_bookmark' story.id %}" method="post">
+        {% csrf_token %}
+        <button id="save-bookmark" type="submit" disabled>Guardar marcador</button>
+        <a href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
+      </form>
+      <p id="bookmark-status" role="status"></p>
+      {% else %}
+      <p><a href="{% url 'pages:login' %}?next={{ request.path|urlencode }}">Ingresa para guardar un marcador</a></p>
+      {% endif %}
+      {{ saved_location|json_script:"saved-location" }}
       <p id="status" role="status">Cargando…</p>
       <nav aria-label="Lectura">
         <button id="previous" disabled>Anterior</button>
@@ -36,35 +51,6 @@
         <button id="next" disabled>Siguiente</button>
       </nav>
       <div id="book" aria-label="Contenido del escrito"></div>
-      <section id="comentarios">
-      <h1>Comentarios</h1>
-      {% if user.is_authenticated %}
-        <form method="post">
-          {% csrf_token %}
-          <label for="texto">Comentario</label>
-          <input class="comment-input" type="text" id="texto" name="texto" required>
-          <button type="submit" id="agregar">Agregar comentario</button>
-        </form>
-      {% else %}
-      <p><strong>Registrate para comentar</strong></p>
-      <a class="login-link" href="{% url 'pages:login' %}">
-        Ingresar
-      </a>
-
-      <a class="login-link signup" href="{% url 'pages:signup' %}">
-        Crear Cuenta
-      </a>
-      {% endif %}
-      {% for c in comentarios %}
-      <p>
-        <strong>{{c.nombre}}</strong>
-        <small>({{ c.fecha|date:"d/m/Y H:i" }})</small>
-      </p>
-      <p>{{c.texto}}</p>
-      {% empty %}
-        <p>No hay comentarios</p>
-      {% endfor %}
-      </section>
     </main>
   </body>
 </html>

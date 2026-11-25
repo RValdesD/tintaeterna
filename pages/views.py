@@ -3,8 +3,6 @@ from django.shortcuts import render
 from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 
-from django.urls import reverse
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.contrib import messages
@@ -17,7 +15,13 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import LoginForm, SignupForm
 from .forms import StoryUploadForm
-from .models import StoryUpload, Tag, Comentarios
+from .models import StoryUpload, Tag, Bookmark, Profile
+from .forms import ProfileDescriptionForm, ProfilePictureForm
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+import re
 from pathlib import Path
 from django.http import FileResponse, Http404
 from django.views.decorators.http import require_GET
@@ -31,37 +35,18 @@ def readable_story(request, upload_id):
 
     return story
 
-def get_coments(request, upload_id):
-    story = get_object_or_404(StoryUpload, pk=upload_id)
-    return Comentarios.objects.filter(historia=story).order_by("fecha")
-
 
 @never_cache
-@require_http_methods(["GET", "POST"])
+@require_GET
 def reader(request, upload_id):
-    if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect("pages:login")
+    story = readable_story(request, upload_id)
 
-        story = readable_story(request, upload_id)
-        texto = request.POST.get("texto", "").strip()
-
-        if texto:
-            Comentarios.objects.create(
-                historia=story,
-                nombre=request.user.username,
-                texto=texto,
-            )
-
-        return redirect(f"{reverse('pages:reader', kwargs={'upload_id': upload_id})}#comentarios")    
-    if request.method == "GET":
-        story = readable_story(request, upload_id)
-        comentarios = get_coments(request, upload_id)
-
-        return render(request, "pages/reader.html", {
-            "story": story,
-            "format": Path(story.file.name).suffix.lower()[1:],
-            "comentarios": comentarios
+    return render(request, "pages/reader.html", {
+        "story": story,
+        "format": Path(story.file.name).suffix.lower()[1:],
+        "saved_location": (Bookmark.objects.filter(user=request.user, story=story)
+                           .values_list("location", flat=True).first() or "")
+                           if request.user.is_authenticated else "",
     })
 
 
@@ -134,12 +119,20 @@ def home(request):
         },
     ]
 
-    tags = Tag.objects.all() #obtiene todos los tags creados
+    for item in popular + recommended:
+        item["profile_url"] = reverse("pages:demo_profile", args=[item["author"]])
+    uploads = StoryUpload.objects.select_related("owner").prefetch_related("tags").order_by("-uploaded_at")
+    uploaded_cards = [{"title": item.original_name, "author": item.owner.username,
+                       "profile_url": reverse("pages:profile", args=[item.owner_id]),
+                       "reader_url": reverse("pages:reader", args=[item.pk]),
+                       "tags": item.tags} for item in uploads]
+    tags = Tag.objects.order_by("name")
 
     return render(request, "pages/home.html", {
         "sections": [
             {"title": "Popular: Esta Semana", "stories": popular},
             {"title": "Obras Recomendadas", "stories": recommended},
+            {"title": "Escritos publicados", "stories": uploaded_cards},
         ],
         "tags": tags,
     })
@@ -198,6 +191,9 @@ def login_page(request):
 
         if user is not None:
             login(request, user)
+            target = request.POST.get("next") or request.GET.get("next", "")
+            if target and url_has_allowed_host_and_scheme(target, {request.get_host()}, require_https=request.is_secure()):
+                return redirect(target)
             return redirect("pages:home")
 
         form.add_error(
@@ -247,3 +243,110 @@ def delete_upload(request, upload_id):
 def logout_page(request):
     logout(request)
     return redirect("pages:home")
+
+
+@require_GET
+def public_profile(request, user_id):
+    author = get_object_or_404(get_user_model(), pk=user_id, is_active=True)
+    return render(request, "pages/profile.html", {
+        "author_name": author.username,
+        "author": author,
+        "profile": Profile.objects.filter(user=author).first(),
+        "works": StoryUpload.objects.filter(owner=author).prefetch_related("tags").order_by("-uploaded_at"),
+    })
+
+
+@require_GET
+def demo_profile(request, author):
+    if author not in {f"Autor{i}" for i in range(1, 9)}:
+        raise Http404("Perfil no encontrado.")
+    return render(request, "pages/profile.html", {
+        "author_name": author, "demo": True,
+        "demo_title": f"Obra{author[5:]}",
+    })
+
+
+@login_required
+@never_cache
+@require_GET
+def bookmarks(request):
+    return render(request, "pages/bookmarks.html", {
+        "bookmarks": Bookmark.objects.filter(user=request.user).select_related("story", "story__owner"),
+    })
+
+
+@login_required
+@never_cache
+@require_POST
+def save_bookmark(request, upload_id):
+    story = readable_story(request, upload_id)
+    location = request.POST.get("location", "")
+    extension = Path(story.file.name).suffix.lower()
+    if extension == ".epub":
+        valid = (len(location) <= 2000 and location.startswith("epubcfi(")
+                 and location.endswith(")") and not any(ord(c) < 32 for c in location))
+    else:
+        valid = bool(re.fullmatch(r"[1-9][0-9]{0,6}", location))
+    if not valid:
+        return JsonResponse({"error": "Posición de lectura inválida."}, status=400)
+    Bookmark.objects.update_or_create(user=request.user, story=story,
+                                     defaults={"location": location})
+    return JsonResponse({"location": location})
+
+
+@login_required
+@require_POST
+def delete_bookmark(request, upload_id):
+    Bookmark.objects.filter(user=request.user, story_id=upload_id).delete()
+    return redirect("pages:bookmarks")
+
+
+@login_required
+@require_GET
+def my_profile(request):
+    return redirect("pages:profile", user_id=request.user.pk)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_profile(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    form = ProfileDescriptionForm(request.POST or None, instance=profile)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Descripción actualizada.")
+        return redirect("pages:my_profile")
+    return render(request, "pages/edit_profile.html", {"form": form, "picture": False})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_profile_picture(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    old_name = profile.avatar.name
+    storage = profile.avatar.storage
+    form = ProfilePictureForm(request.POST if request.method == "POST" else None,
+                              request.FILES if request.method == "POST" else None,
+                              instance=profile)
+    if request.method == "POST" and form.is_valid():
+        profile = form.save()
+        if old_name and old_name != profile.avatar.name:
+            storage.delete(old_name)
+        messages.success(request, "Foto actualizada.")
+        return redirect("pages:my_profile")
+    return render(request, "pages/edit_profile.html", {"form": form, "picture": True})
+
+
+@require_GET
+def profile_picture(request, user_id):
+    profile = get_object_or_404(Profile, user_id=user_id, user__is_active=True)
+    if not profile.avatar:
+        raise Http404("Sin foto de perfil.")
+    try:
+        source = profile.avatar.open("rb")
+    except OSError:
+        raise Http404("Imagen no disponible.")
+    response = FileResponse(source, content_type="image/png")
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "no-cache"
+    return response

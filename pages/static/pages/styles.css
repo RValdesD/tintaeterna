@@ -307,3 +307,9 @@ h1 {
     color: var(--page-text);
     font-size: 14px;
 }
+/* Compact multi-select dropdown; the panel never occupies the story grid. */
+.tag-dropdown { position: relative; flex-shrink: 0; }
+.tag-dropdown summary { cursor: pointer; padding: 10px; border: 1px solid var(--purple); }
+.tag-dropdown .tag-menu { left: auto; right: 0; width: min(300px, 80vw); max-height: 260px; overflow-y: auto; }
+.tag-dropdown:not([open]) > .tag-menu { display: none; }
+.author a { color: inherit; }

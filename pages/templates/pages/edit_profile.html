@@ -1,0 +1,12 @@
+{% extends 'pages/library_base.html' %}
+{% block title %}{% if picture %}Cambiar foto{% else %}Editar descripción{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if picture %}Cambiar foto de perfil{% else %}Editar descripción{% endif %}</h1>
+<form class="profile-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if picture %}<p>JPG, PNG o WebP · Máximo 2 MB · 4096 × 4096 píxeles</p>{% endif %}
+    <button type="submit">Guardar cambios</button>
+    <a href="{% url 'pages:my_profile' %}">Cancelar</a>
+</form>
+{% endblock %}

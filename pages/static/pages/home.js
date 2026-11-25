@@ -8,15 +8,14 @@ const noResults = document.querySelector("#no-results");
 const tagDropdown = document.querySelector("#tag-dropdown");
 const tagCheckboxes = document.querySelectorAll(".tag-checkbox");
 
-// Mostrar menú al presionar la barra de búsqueda
-searchInput.addEventListener("focus", () => {
-    tagDropdown.classList.remove("hidden");
-});
-
-// Ocultar menú al hacer clic fuera del formulario
+// Native details supports keyboard and touch without a custom focus menu.
 document.addEventListener("click", (event) => {
-    if (!searchForm.contains(event.target)) {
-        tagDropdown.classList.add("hidden");
+    if (!tagDropdown.contains(event.target)) tagDropdown.open = false;
+});
+tagDropdown.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        tagDropdown.open = false;
+        tagDropdown.querySelector("summary").focus();
     }
 });
 
@@ -28,6 +27,7 @@ function filterStories() {
         .filter(cb => cb.checked)
         .map(cb => cb.value);
 
+    document.getElementById("tag-count").textContent = selectedTags.length ? `(${selectedTags.length})` : "";
     let visibleCount = 0;
 
     cards.forEach((card) => {
@@ -36,7 +36,7 @@ function filterStories() {
             .includes(query);
 
 
-        const cardTags = card.dataset.tags ? card.dataset.tags.toLowerCase() : "";
+        const cardTags = (card.dataset.tags || "").trim().split(/\s+/);
         const tagMatches = selectedTags.length === 0 || selectedTags.some(tag => cardTags.includes(tag));
 
         const matches = textMatches && tagMatches;

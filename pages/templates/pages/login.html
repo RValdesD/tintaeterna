@@ -36,6 +36,7 @@
 
         <form method="post" action="{% url 'pages:login' %}">
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.POST.next|default:request.GET.next }}">
 
             {% if form.non_field_errors %}
                 <div class="errors" role="alert">

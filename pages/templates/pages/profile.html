@@ -1,0 +1,33 @@
+{% extends 'pages/library_base.html' %}
+{% block title %}{{ author_name }}{% endblock %}
+{% block content %}
+{% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
+<section class="profile-heading">
+    {% if profile.avatar %}
+    <img class="profile-picture" src="{% url 'pages:profile_picture' author.id %}" alt="Foto de {{ author_name }}" width="128" height="128">
+    {% else %}
+    <div class="profile-picture profile-placeholder" role="img" aria-label="Sin foto de perfil">{{ author_name|first|upper }}</div>
+    {% endif %}
+    <div><h1>{{ author_name }}</h1>
+    {% if user.is_authenticated and user == author %}
+    <a href="{% url 'pages:edit_profile_picture' %}">Cambiar foto de perfil</a>
+    {% endif %}
+    {% if demo %}<p>Perfil de ejemplo</p>{% endif %}
+    </div>
+</section>
+<section class="profile-description">
+    <h2>Descripción</h2>
+    {% if profile.description %}<div class="profile-bio">{{ profile.description|linebreaksbr }}</div>
+    {% else %}<p>Sin descripción.</p>{% endif %}
+    {% if user.is_authenticated and user == author %}
+    <a href="{% url 'pages:edit_profile' %}">Editar descripción</a>
+    {% endif %}
+</section>
+<section><h2>Obras publicadas</h2>
+{% if demo %}<article><h3>{{ demo_title }}</h3><p>Vista previa de ejemplo · Sin archivo de lectura</p></article>{% endif %}
+{% for work in works %}<article>
+<h3><a href="{% url 'pages:reader' work.id %}">{{ work.original_name }}</a></h3>
+<p>{% for tag in work.tags.all %}{{ tag.name }}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+</article>{% empty %}{% if not demo %}<p>Aún no hay escritos publicados.</p>{% endif %}{% endfor %}
+</section>
+{% endblock %}

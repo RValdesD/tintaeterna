@@ -4,9 +4,37 @@ const status = document.getElementById("status");
 const position = document.getElementById("position");
 const previous = document.getElementById("previous");
 const next = document.getElementById("next");
+const bookmarkForm = document.getElementById("bookmark-form");
+const saveButton = document.getElementById("save-bookmark");
+const bookmarkStatus = document.getElementById("bookmark-status");
+const savedLocation = JSON.parse(document.getElementById("saved-location").textContent);
 let page = 1, total = 1, busy = false, draw, rendition;
+let currentLocation = "", saving = false;
+
+if (bookmarkForm) bookmarkForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!currentLocation || busy || saving) return;
+    saving = true;
+    controls();
+    const payload = new FormData(bookmarkForm);
+    payload.set("location", currentLocation);
+    try {
+        const response = await fetch(bookmarkForm.action, {
+            method: "POST", body: payload, credentials: "same-origin",
+        });
+        if (!response.ok || response.redirected) throw new Error("Save failed");
+        await response.json();
+        bookmarkStatus.textContent = "Marcador guardado. Se abrirá aquí cuando vuelvas.";
+    } catch {
+        bookmarkStatus.textContent = "No se pudo guardar. Comprueba tu conexión y que sigues conectado.";
+    } finally {
+        saving = false;
+        controls();
+    }
+});
 
 function controls() {
+    if (saveButton) saveButton.disabled = busy || saving || !currentLocation;
     previous.disabled = busy || page <= 1;
     next.disabled = busy || page >= total;
 }
@@ -21,6 +49,7 @@ async function move(delta) {
         } else {
             page = Math.max(1, Math.min(total, page + delta));
             await draw();
+            currentLocation = String(page);
             position.textContent = `Página ${page} de ${total}`;
         }
         status.textContent = "";
@@ -65,6 +94,7 @@ try {
             await current.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
             canvas.setAttribute("aria-label", `Página ${page}`);
         };
+        page = Math.max(1, Math.min(total, Number(savedLocation) || 1));
         await move(0);
     } else if (root.dataset.format === "txt") {
         const text = new TextDecoder("utf-8", { fatal: true }).decode(data);
@@ -84,6 +114,7 @@ try {
         const content = document.createElement("pre");
         area.append(content);
         draw = async () => { content.textContent = sections[page - 1] || ""; };
+        page = Math.max(1, Math.min(total, Number(savedLocation) || 1));
         await move(0);
     } else {
         await loadScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");
@@ -95,17 +126,25 @@ try {
             allowScriptedContent: false,
         });
         rendition.on("relocated", (location) => {
-            // EPUB pages reflow: use boundary flags for navigation.
+            // EPUB CFI remains stable when the viewport/font changes.
+            currentLocation = location.start.cfi;
             page = location.atStart ? 1 : 2;
             total = location.atEnd ? page : page + 1;
             position.textContent = `Sección ${location.start.index + 1}`;
             controls();
         });
-        await rendition.display();
+        try {
+            await rendition.display(savedLocation || undefined);
+        } catch (error) {
+            if (!savedLocation) throw error;
+            await rendition.display();
+            if (bookmarkStatus) bookmarkStatus.textContent = "El marcador ya no es válido; se abrió el inicio.";
+        }
         status.textContent = "";
         controls();
     }
 } catch (error) {
     status.textContent = "No se pudo abrir el archivo. Comprueba tu sesión, conexión y el formato. Puedes descargarlo.";
     previous.disabled = next.disabled = true;
+    if (saveButton) saveButton.disabled = true;
 }

@@ -12,22 +12,7 @@ nav { justify-content: center; }
 #book canvas { display: block; max-width: 100%; height: auto; margin: auto; }
 #book pre { margin: 0; padding: 24px; white-space: pre-wrap; overflow-wrap: anywhere; font: 18px/1.7 Georgia, serif; }
 #book.epub { height: 75vh; background: white; color: black; }
-html {
-  scroll-behavior: smooth;
-}
-.upload-button,
-.login-link {
-    padding: 10px 16px;
-    border: 1px solid var(--purple);
-    background: transparent;
-    color: var(--page-text);
-    cursor: pointer;
-}
 
-.login-link {
-    display: inline-block;
-    text-decoration: none;
-}
-.comment-input {
-    height: 30px;
-}
+article { padding: 20px 0; border-bottom: 1px solid var(--purple); }
+article form { margin-top: 12px; }
+#bookmark-form { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }

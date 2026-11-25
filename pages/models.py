@@ -30,16 +30,31 @@ class StoryUpload(models.Model):
 
     def __str__(self):
             return self.original_name
-        
-#clase comentario. id, fecha, nombre, texto, id_story
-class Comentarios(models.Model):
-    fecha= models.DateTimeField(auto_now_add=True)
-    nombre = models.CharField(max_length=100)
-    texto = models.TextField()
-    historia = models.ForeignKey(
-        'StoryUpload',
-        on_delete=models.CASCADE,
-        related_name='comentarios'
-    )
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name="bookmarks")
+    story = models.ForeignKey(StoryUpload, on_delete=models.CASCADE,
+                              related_name="bookmarks")
+    location = models.CharField(max_length=2000)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "story"],
+                                               name="unique_user_story_bookmark")]
+        ordering = ["-updated_at"]
+
+
+def avatar_file_path(instance, filename):
+    return f"avatars/{instance.user_id}/{uuid4().hex}.png"
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                related_name="profile")
+    description = models.TextField(max_length=1000, blank=True)
+    avatar = models.ImageField(upload_to=avatar_file_path, blank=True)
+
     def __str__(self):
-        return f"{self.nombre} en {self.historia}"
+        return self.user.username

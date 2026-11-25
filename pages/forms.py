@@ -162,3 +162,45 @@ class StoryUploadForm(forms.ModelForm):
             file.seek(0)
 
         return file
+
+from io import BytesIO
+from PIL import Image, ImageOps, UnidentifiedImageError
+from django.core.files.base import ContentFile
+from .models import Profile
+
+
+class ProfileDescriptionForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ["description"]
+        labels = {"description": "Descripción"}
+        widgets = {"description": forms.Textarea(attrs={"rows": 5, "maxlength": 1000})}
+
+
+class ProfilePictureForm(forms.ModelForm):
+    avatar = forms.ImageField(label="Foto de perfil", required=True,
+                              widget=forms.FileInput(attrs={"accept": "image/jpeg,image/png,image/webp"}))
+
+    class Meta:
+        model = Profile
+        fields = ["avatar"]
+
+    def clean_avatar(self):
+        upload = self.cleaned_data["avatar"]
+        if upload.size > 2 * 1024 * 1024:
+            raise forms.ValidationError("La imagen no puede superar 2 MB.")
+        try:
+            upload.seek(0)
+            with Image.open(upload) as picture:
+                if picture.format not in {"JPEG", "PNG", "WEBP"}:
+                    raise forms.ValidationError("Usa una imagen JPG, PNG o WebP.")
+                if max(picture.size) > 4096:
+                    raise forms.ValidationError("El tamaño máximo es 4096 × 4096 píxeles.")
+                picture.load()
+                normalized = ImageOps.exif_transpose(picture).convert("RGBA")
+                normalized.thumbnail((512, 512))
+                output = BytesIO()
+                normalized.save(output, format="PNG")
+        except (OSError, UnidentifiedImageError, Image.DecompressionBombError, ValueError):
+            raise forms.ValidationError("No se pudo leer la imagen.")
+        return ContentFile(output.getvalue(), name="avatar.png")
