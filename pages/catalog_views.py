@@ -14,7 +14,13 @@ from .sample_works import cover_url
 def recent(request):
     query = request.GET.get("q", "").strip()[:200]
     tag_ids = [int(value) for value in request.GET.getlist("tag") if value.isdecimal() and len(value) < 10]
-    works = StoryUpload.objects.exclude(file="").select_related("owner").prefetch_related("tags").order_by("-uploaded_at", "-pk")
+    # Las obras de muestra permanecen en inicio y perfiles, fuera de novedades.
+    works = (StoryUpload.objects
+             .filter(Q(sample_key__isnull=True) | Q(sample_key=""))
+             .exclude(file="")
+             .select_related("owner")
+             .prefetch_related("tags")
+             .order_by("-uploaded_at", "-pk"))
     if query:
         works = works.filter(Q(title__icontains=query) | Q(original_name__icontains=query) | Q(owner__username__icontains=query))
     if tag_ids:
