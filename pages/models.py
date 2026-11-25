@@ -29,4 +29,4 @@ class StoryUpload(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, related_name="stories", verbose_name="Tags")
 
     def __str__(self):
-            return self.original_namename
+            return self.original_name

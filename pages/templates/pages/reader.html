@@ -1,0 +1,30 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ story.original_name }} | TintaEterna</title>
+  <script src="{% static 'pages/theme.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'pages/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'pages/reader.css' %}">
+  <script type="module" src="{% static 'pages/reader.js' %}"></script>
+</head>
+<body>
+  <header>
+    <a href="{% url 'pages:upload' %}">Volver</a>
+    <button id="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false">Light mode</button>
+    <a href="{% url 'pages:reader_file' story.id %}">Descargar</a>
+  </header>
+  <main id="reader" data-format="{{ format }}" data-url="{% url 'pages:reader_file' story.id %}">
+    <h1>{{ story.original_name }}</h1>
+    <p id="status" role="status">Cargando…</p>
+    <nav aria-label="Lectura">
+      <button id="previous" disabled>Anterior</button>
+      <span id="position" aria-live="polite"></span>
+      <button id="next" disabled>Siguiente</button>
+    </nav>
+    <div id="book" aria-label="Contenido del escrito"></div>
+  </main>
+</body>
+</html>

@@ -4,6 +4,8 @@ from . import views
 app_name = "pages"
 
 urlpatterns = [
+    path("read/<int:upload_id>/", views.reader, name="reader"),
+    path("read/<int:upload_id>/file/", views.reader_file, name="reader_file"),
     path("", views.home, name="home"),
     path("upload/", views.upload, name="upload"),
     path("login/", views.login_page, name="login"),

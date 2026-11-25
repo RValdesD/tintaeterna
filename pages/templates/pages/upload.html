@@ -84,7 +84,7 @@
                 {% for upload in uploads %}
                     <li>
                         <span>
-                            {{ upload.original_name }}
+                            <a href="{% url 'pages:reader' upload.id %}">{{ upload.original_name }} — Leer</a>
                             {% if upload.tags.all %}
                                 <small style="color: gray;">
                                     ({% for tag in upload.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %})
