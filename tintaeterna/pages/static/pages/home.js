@@ -39,10 +39,35 @@ tagDropdown.addEventListener("keydown", (event) => {
 });
 
 /**
+ * Normaliza un texto para compararlo sin distinguir tildes ni mayúsculas.
+ *
+ * Descompone cada carácter en su letra base y sus marcas diacríticas (NFD),
+ * elimina esas marcas (tildes, diéresis y la tilde de la ñ) y convierte
+ * el resultado a minúsculas. Si el valor recibido es null o undefined,
+ * lo trata como un texto vacío.
+ *
+ * Se aplica tanto al texto buscado como al texto de cada tarjeta, de modo
+ * que "Señor", "SEÑOR" y "senor" produzcan el mismo resultado.
+ *
+ * @param {string} text - Texto que se desea normalizar.
+ * @returns {string} Texto en minúsculas y sin tildes.
+ *
+ * @example
+ * normalizeText("Señor Ñandú"); // "senor nandu"
+ */
+function normalizeText(text) {
+    return String(text ?? "")
+        .normalize("NFD")
+        .replace(/\p{M}/gu, "")
+        .toLowerCase();
+}
+
+/**
  * Filtra las historias según el texto de búsqueda y las etiquetas seleccionadas.
  *
- * Obtiene el texto ingresado por el usuario y lo normaliza eliminando
- * espacios al inicio y al final y convirtiéndolo a minúsculas.
+ * Obtiene el texto ingresado por el usuario, lo normaliza con normalizeText
+ * (minúsculas y sin tildes) y elimina los espacios al inicio y al final.
+ * El texto de cada tarjeta se normaliza de la misma manera antes de compararlo.
  *
  * También obtiene las etiquetas seleccionadas y actualiza su contador.
  * Una historia se muestra únicamente cuando coincide con el texto
@@ -61,7 +86,7 @@ tagDropdown.addEventListener("keydown", (event) => {
  * filterStories();
  */
 function filterStories() {
-    const query = searchInput.value.trim().toLowerCase();
+    const query = normalizeText(searchInput.value).trim();
     
     // Obtener los valores de los tags que el usuario haya seleccionado
     const selectedTags = Array.from(tagCheckboxes)
@@ -72,9 +97,7 @@ function filterStories() {
     let visibleCount = 0;
 
     cards.forEach((card) => {
-        const textMatches = card.dataset.search
-            .toLowerCase()
-            .includes(query);
+        const textMatches = normalizeText(card.dataset.search).includes(query);
 
         const cardTags = (card.dataset.tags || "").trim().split(/\s+/);
         const tagMatches = selectedTags.length === 0 || selectedTags.some(tag => cardTags.includes(tag));

@@ -7,6 +7,7 @@ from django.views.decorators.http import require_GET
 from .models import StoryUpload, Tag
 from .views import sample_stories
 from .sample_works import cover_url
+from .text_search import search_works
 
 
 @require_GET
@@ -22,7 +23,7 @@ def recent(request):
              .prefetch_related("tags")
              .order_by("-uploaded_at", "-pk"))
     if query:
-        works = works.filter(Q(title__icontains=query) | Q(original_name__icontains=query) | Q(owner__username__icontains=query))
+        works = search_works(works, query)
     if tag_ids:
         works = works.filter(tags__pk__in=tag_ids).distinct()
     paginator = Paginator(works, 20)
