@@ -25,6 +25,7 @@ import re
 from pathlib import Path
 from django.http import FileResponse, Http404
 from django.views.decorators.http import require_GET
+from django.templatetags.static import static
 
 
 def readable_story(request, upload_id):
@@ -76,26 +77,26 @@ def home(request):
     popular = [
         {
             "title": "Comment te dire Adieu",
-            "author": "Naranja Corupta",
+            "author": "Naranja L.",
             "rating": "4.8",
         },
         {
             "title": "El Mayordomo",
-            "author": "Autor2",
+            "author": "Laëtitia",
             "rating": "4.6",
         },
         {
-            "title": "Obra3",
+            "title": "Monochromia",
             "author": "Autor3",
             "rating": "4.9",
         },
         {
-            "title": "Obra4",
+            "title": "CyberCidio",
             "author": "Autor4",
             "rating": "4.7",
         },
-                {
-            "title": "Obra4",
+        {
+            "title": "Carta Blanca",
             "author": "Autor4",
             "rating": "4.7",
         },
@@ -124,23 +125,52 @@ def home(request):
         },
     ]
 
-    for item in popular + recommended:
-        item["profile_url"] = reverse("pages:demo_profile", args=[item["author"]])
-    uploads = StoryUpload.objects.select_related("owner").prefetch_related("tags").order_by("-uploaded_at")
-    uploaded_cards = [{"title": item.display_title, "author": item.owner.username,
-                       "profile_url": reverse("pages:profile", args=[item.owner_id]),
-                       "reader_url": reverse("pages:reader", args=[item.pk]),
-                       "cover_url": reverse("pages:story_cover", args=[item.pk]) if item.cover else "",
-                       "tags": item.tags} for item in uploads]
-    tags = Tag.objects.order_by("name")
+    sample_covers = {
+        "Comment te dire Adieu": "obra1.jpg",
+        "El Mayordomo": "obra2.png",
+        "Monochromia": "obra3.jpg",
+        "CyberCidio": "obra4.jpg",
+        "Carta Blanca": "obra5.png",
+        "Obra6": "obra6.png",
+        "Obra7": "obra7.jpg",
+        "Obra8": "obra8.jpg",
+    }
 
+    for item in popular + recommended:
+        item["profile_url"] = reverse(
+            "pages:demo_profile",
+            args=[item["author"]],
+        )
+
+        filename = sample_covers.get(item["title"])
+        item["cover_url"] = (
+            static(f"public/images/{filename}") if filename else ""
+        )
+
+
+    uploads = (
+        StoryUpload.objects.select_related("owner")
+        .prefetch_related("tags")
+        .order_by("-uploaded_at")
+    )
+    uploaded_cards = [
+        {
+            "title": item.display_title,
+            "author": item.owner.username,
+            "profile_url": reverse("pages:profile", args=[item.owner_id]),
+            "reader_url": reverse("pages:reader", args=[item.pk]),
+            "cover_url": reverse("pages:story_cover", args=[item.pk]) if item.cover else "",
+            "tags": item.tags,
+        }
+        for item in uploads
+    ]
     return render(request, "pages/home.html", {
         "sections": [
             {"title": "Popular: Esta Semana", "stories": popular},
             {"title": "Obras Recomendadas", "stories": recommended},
             {"title": "Escritos publicados", "stories": uploaded_cards},
         ],
-        "tags": tags,
+        "tags": Tag.objects.order_by("name"),
     })
 
 
@@ -268,11 +298,16 @@ def public_profile(request, user_id):
 
 @require_GET
 def demo_profile(request, author):
-    if author not in {f"Autor{i}" for i in range(1, 9)}:
+    demo_titles = {f"Autor{i}": f"Obra{i}" for i in range(1, 9)}
+    demo_titles.update({
+        "Naranja Corupta": "Comment te dire Adieu",
+        "Autor2": "El Mayordomo",
+    })
+    if author not in demo_titles:
         raise Http404("Perfil no encontrado.")
     return render(request, "pages/profile.html", {
         "author_name": author, "demo": True,
-        "demo_title": f"Obra{author[5:]}",
+        "demo_title": demo_titles[author],
     })
 
 
