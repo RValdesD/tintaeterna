@@ -124,3 +124,30 @@ body > header:not(.site-header) .account-menu-panel {
     max-width: calc(100vw - 40px);
     overflow-wrap: anywhere;
 }
+
+/* Logout is the last dropdown option; submit securely through POST. */
+.account-menu .account-menu-panel .account-menu-logout {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.account-menu .account-menu-panel .account-menu-logout button {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--page-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform: none;
+}
+.account-menu .account-menu-panel .account-menu-logout button:hover,
+.account-menu .account-menu-panel .account-menu-logout button:focus-visible {
+  background: var(--upload-hover);
+  opacity: 1;
+}

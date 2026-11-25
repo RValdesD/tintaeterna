@@ -8,6 +8,10 @@
         <a href="{% url 'pages:bookmarks' %}">Mis marcadores</a>
         <a href="{% url 'pages:moderation_notices' %}">Avisos de moderación</a>
         {% if user|is_moderator %}<a href="{% url 'pages:moderation_dashboard' %}">Moderación</a>{% endif %}
+        <form class="account-menu-logout" method="post" action="{% url 'pages:logout' %}">
+            {% csrf_token %}
+            <button type="submit">Cerrar Sesión</button>
+        </form>
     </div>
 </details>
 {% endif %}
