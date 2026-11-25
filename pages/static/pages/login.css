@@ -105,21 +105,22 @@ button:hover {
     align-items: center;
     justify-content: center;
     width: auto;
-    padding: 6px 10px;
+    padding: 10px 16px;
     border: 1px solid var(--purple);
-    border-radius: 3px;
+    border-radius: 0;
     background: transparent;
     color: var(--page-text);
     font: inherit;
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: 16px;
+    line-height: 1.5;
     text-decoration: none;
     cursor: pointer;
 }
 
 #theme-toggle:hover,
 .back-button:hover {
-    background: var(--upload-hover);
+    background: transparent;
+    opacity: 0.8;
 }
 
 .field label {
