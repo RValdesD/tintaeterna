@@ -58,3 +58,13 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Comentarios(models.Model):
+    """Existing comment schema retained from the comments migrations."""
+    fecha = models.DateTimeField(auto_now_add=True)
+    nombre = models.CharField(max_length=100)
+    texto = models.TextField()
+    historia = models.ForeignKey(
+        StoryUpload, on_delete=models.CASCADE, related_name="comentarios"
+    )

@@ -201,7 +201,10 @@ def login_page(request):
             "Correo electrónico o contraseña incorrectos.",
         )
 
-    return render(request, "pages/login.html", {"form": form})
+    return render(request, "pages/login.html", {
+        "form": form,
+        "next_url": request.POST.get("next") or request.GET.get("next", ""),
+    })
 
 @sensitive_post_parameters("password1", "password2")
 @never_cache
