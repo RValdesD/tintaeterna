@@ -1,0 +1,11 @@
+{% extends 'pages/library_base.html' %}
+{% block title %}Editar escrito{% endblock %}
+{% block content %}
+<h1>Editar título y portada</h1>
+<form class="profile-form" method="post" enctype="multipart/form-data">
+{% csrf_token %}{{ form.as_p }}
+<p>Portada PNG o JPG · Máximo 2 MB · 4096 × 4096 píxeles</p>
+<button type="submit">Guardar</button>
+<a href="{% url 'pages:upload' %}">Cancelar</a>
+</form>
+{% endblock %}

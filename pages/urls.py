@@ -4,6 +4,8 @@ from . import views
 app_name = "pages"
 
 urlpatterns = [
+    path("upload/<int:upload_id>/presentation/", views.edit_story_presentation, name="edit_story_presentation"),
+    path("stories/<int:upload_id>/cover/", views.story_cover, name="story_cover"),
     path("profile/", views.my_profile, name="my_profile"),
     path("profile/edit/", views.edit_profile, name="edit_profile"),
     path("profile/picture/edit/", views.edit_profile_picture, name="edit_profile_picture"),

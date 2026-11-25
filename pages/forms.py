@@ -80,16 +80,42 @@ class SignupForm(UserCreationForm):
 
         return email
     
+def clean_story_cover(cover):
+    if not cover or not hasattr(cover, "content_type"):
+        return cover
+    if cover.size > 2 * 1024 * 1024:
+        raise forms.ValidationError("La portada no puede superar 2 MB.")
+    try:
+        cover.seek(0)
+        with Image.open(cover) as picture:
+            if picture.format not in {"PNG", "JPEG"}:
+                raise forms.ValidationError("Usa una portada PNG o JPG.")
+            if max(picture.size) > 4096:
+                raise forms.ValidationError("Máximo 4096 × 4096 píxeles.")
+            picture.load()
+            picture = ImageOps.exif_transpose(picture).convert("RGB")
+            picture.thumbnail((900, 1350))
+            output = BytesIO()
+            picture.save(output, format="PNG")
+    except (OSError, ValueError, Image.DecompressionBombError):
+        raise forms.ValidationError("La imagen no es válida.")
+    return ContentFile(output.getvalue(), name="cover.png")
+
+
 class StoryUploadForm(forms.ModelForm):
+    def clean_cover(self):
+        return clean_story_cover(self.cleaned_data.get("cover"))
+
     class Meta:
         model = StoryUpload
-        fields = ("file", "tags")
-        labels = {"file": "Archivo",
+        fields = ("title", "file", "cover", "tags")
+        labels = {"title": "Título (opcional)", "cover": "Portada (opcional)", "file": "Archivo",
                   "tags": "Tags (Opcional)"}
         widgets = {
             "file": forms.FileInput(attrs={
                 "accept": ".pdf,.epub,.txt",
             }),
+            "cover": forms.FileInput(attrs={"accept": "image/png,image/jpeg"}),
             "tags": forms.CheckboxSelectMultiple(), #Muestra cajas de selección múltiple
         }
 
@@ -204,3 +230,14 @@ class ProfilePictureForm(forms.ModelForm):
         except (OSError, UnidentifiedImageError, Image.DecompressionBombError, ValueError):
             raise forms.ValidationError("No se pudo leer la imagen.")
         return ContentFile(output.getvalue(), name="avatar.png")
+
+
+class StoryPresentationForm(forms.ModelForm):
+    class Meta:
+        model = StoryUpload
+        fields = ["title", "cover"]
+        labels = {"title": "Título", "cover": "Portada"}
+        widgets = {"cover": forms.FileInput(attrs={"accept": "image/png,image/jpeg"})}
+
+    def clean_cover(self):
+        return clean_story_cover(self.cleaned_data.get("cover"))

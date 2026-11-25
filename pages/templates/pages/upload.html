@@ -44,6 +44,9 @@
             {% csrf_token %}
 
             {{ form.non_field_errors }}
+            <div class="field">{{ form.title.label_tag }}{{ form.title }}{{ form.title.errors }}</div>
+            <div class="field">{{ form.cover.label_tag }}{{ form.cover }}{{ form.cover.errors }}
+            <small>PNG o JPG · Máximo 2 MB</small></div>
 
             <div class="field">
                 <label for="{{ form.file.id_for_label }}">
@@ -86,7 +89,8 @@
                 {% for upload in uploads %}
                     <li>
                         <span>
-                            <a href="{% url 'pages:reader' upload.id %}">{{ upload.original_name }} — Leer</a>
+                            <a href="{% url 'pages:reader' upload.id %}">{{ upload.display_title }} — Leer</a>
+                            <a href="{% url 'pages:edit_story_presentation' upload.id %}">Editar título y portada</a>
                             {% if upload.tags.all %}
                                 <small style="color: gray;">
                                     ({% for tag in upload.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %})

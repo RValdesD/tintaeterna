@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 
 from .forms import LoginForm, SignupForm
-from .forms import StoryUploadForm
+from .forms import StoryUploadForm, StoryPresentationForm
 from .models import StoryUpload, Tag, Bookmark, Profile
 from .forms import ProfileDescriptionForm, ProfilePictureForm
 from django.contrib.auth import get_user_model
@@ -75,12 +75,12 @@ def reader_file(request, upload_id):
 def home(request):
     popular = [
         {
-            "title": "Obra1",
-            "author": "Autor1",
+            "title": "Comment te dire Adieu",
+            "author": "Naranja Corupta",
             "rating": "4.8",
         },
         {
-            "title": "Obra2",
+            "title": "El Mayordomo",
             "author": "Autor2",
             "rating": "4.6",
         },
@@ -90,6 +90,11 @@ def home(request):
             "rating": "4.9",
         },
         {
+            "title": "Obra4",
+            "author": "Autor4",
+            "rating": "4.7",
+        },
+                {
             "title": "Obra4",
             "author": "Autor4",
             "rating": "4.7",
@@ -122,9 +127,10 @@ def home(request):
     for item in popular + recommended:
         item["profile_url"] = reverse("pages:demo_profile", args=[item["author"]])
     uploads = StoryUpload.objects.select_related("owner").prefetch_related("tags").order_by("-uploaded_at")
-    uploaded_cards = [{"title": item.original_name, "author": item.owner.username,
+    uploaded_cards = [{"title": item.display_title, "author": item.owner.username,
                        "profile_url": reverse("pages:profile", args=[item.owner_id]),
                        "reader_url": reverse("pages:reader", args=[item.pk]),
+                       "cover_url": reverse("pages:story_cover", args=[item.pk]) if item.cover else "",
                        "tags": item.tags} for item in uploads]
     tags = Tag.objects.order_by("name")
 
@@ -236,6 +242,7 @@ def delete_upload(request, upload_id):
         owner=request.user,
     )
 
+    story.cover.delete(save=False)
     story.file.delete(save=False)
     story.delete()
 
@@ -349,6 +356,38 @@ def profile_picture(request, user_id):
         source = profile.avatar.open("rb")
     except OSError:
         raise Http404("Imagen no disponible.")
+    response = FileResponse(source, content_type="image/png")
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "no-cache"
+    return response
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_story_presentation(request, upload_id):
+    story = get_object_or_404(StoryUpload, pk=upload_id, owner=request.user)
+    old_cover = story.cover.name
+    storage = story.cover.storage
+    form = StoryPresentationForm(request.POST if request.method == "POST" else None,
+                                 request.FILES if request.method == "POST" else None,
+                                 instance=story)
+    if request.method == "POST" and form.is_valid():
+        story = form.save()
+        if old_cover and old_cover != story.cover.name:
+            storage.delete(old_cover)
+        return redirect("pages:upload")
+    return render(request, "pages/edit_story_presentation.html", {"form": form, "story": story})
+
+
+@require_GET
+def story_cover(request, upload_id):
+    story = get_object_or_404(StoryUpload, pk=upload_id)
+    if not story.cover:
+        raise Http404("Sin portada.")
+    try:
+        source = story.cover.open("rb")
+    except OSError:
+        raise Http404("Portada no disponible.")
     response = FileResponse(source, content_type="image/png")
     response["X-Content-Type-Options"] = "nosniff"
     response["Cache-Control"] = "no-cache"

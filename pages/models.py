@@ -16,7 +16,18 @@ class Tag(models.Model):
         return self.name
 
 
+def cover_file_path(instance, filename):
+    return f"covers/{instance.owner_id}/{uuid4().hex}.png"
+
+
 class StoryUpload(models.Model):
+    title = models.CharField(max_length=200, blank=True)
+    cover = models.ImageField(upload_to=cover_file_path, blank=True)
+
+    @property
+    def display_title(self):
+        return self.title or self.original_name
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
