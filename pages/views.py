@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import login_required
 
 from .forms import LoginForm, SignupForm
 from .forms import StoryUploadForm
-from .models import StoryUpload
+from .models import StoryUpload, Tag
 
 
 
@@ -67,11 +67,14 @@ def home(request):
         },
     ]
 
+    tags = Tag.objects.all() #obtiene todos los tags creados
+
     return render(request, "pages/home.html", {
         "sections": [
             {"title": "Popular: Esta Semana", "stories": popular},
             {"title": "Obras Recomendadas", "stories": recommended},
         ],
+        "tags": tags,
     })
 
 
